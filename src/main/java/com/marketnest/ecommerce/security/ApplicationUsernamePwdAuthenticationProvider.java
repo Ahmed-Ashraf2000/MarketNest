@@ -36,7 +36,7 @@ public class ApplicationUsernamePwdAuthenticationProvider implements Authenticat
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("Invalid email or password");
         }
 
 

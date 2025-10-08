@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.dto;
+package com.marketnest.ecommerce.dto.auth;
 
 import com.marketnest.ecommerce.annotation.FieldsValueMatch;
 import com.marketnest.ecommerce.annotation.PasswordValidator;

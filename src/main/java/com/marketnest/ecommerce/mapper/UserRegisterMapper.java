@@ -1,6 +1,6 @@
 package com.marketnest.ecommerce.mapper;
 
-import com.marketnest.ecommerce.dto.UserRegistrationDto;
+import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
 import com.marketnest.ecommerce.model.User;
 import org.mapstruct.Mapper;
 

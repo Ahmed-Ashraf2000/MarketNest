@@ -9,20 +9,20 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="user_id")
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name="first_name",nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name="last_name",nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @JsonIgnore
@@ -31,6 +31,7 @@ public class User {
 
     private String phone;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(name = "photo_url")
@@ -66,7 +67,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    enum Role{
-        CUSTOMER,ADMIN
+    public enum Role {
+        CUSTOMER, ADMIN
     }
 }
