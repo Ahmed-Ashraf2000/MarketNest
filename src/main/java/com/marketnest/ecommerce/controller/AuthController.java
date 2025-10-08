@@ -68,7 +68,7 @@ public class AuthController {
 
     @GetMapping("/verifyEmail/{token}")
     public ResponseEntity<?> verifyEmail(@PathVariable String token) {
-        User user = verificationService.verifyEmail(token);
+        User user = verificationService.verifyToken(token);
 
         Map<String, String> response = new HashMap<>();
         response.put("message",

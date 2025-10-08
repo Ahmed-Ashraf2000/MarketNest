@@ -49,7 +49,7 @@ public class VerificationService {
     }
 
     @Transactional
-    public User verifyEmail(String token) {
+    public User verifyToken(String token) {
         String hashedToken = tokenService.hashToken(token);
 
         VerificationToken verificationToken = verificationTokenRepository.findByToken(hashedToken)
