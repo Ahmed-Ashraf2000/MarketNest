@@ -60,9 +60,11 @@ public class VerificationService {
             throw new RuntimeException("Email Verification token has expired or already used");
         }
 
+        verificationToken.setUsed(true);
         verificationToken.getUser().setEmailVerified(true);
         verificationToken.getUser().setActive(true);
 
+        verificationTokenRepository.save(verificationToken);
         return userRepository.save(verificationToken.getUser());
     }
 }
