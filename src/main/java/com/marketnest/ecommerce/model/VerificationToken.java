@@ -38,11 +38,11 @@ public class VerificationToken {
     private User user;
 
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expiresAt);
+        return !LocalDateTime.now().isAfter(expiresAt);
     }
 
     public boolean isValid() {
-        return !used && !isExpired();
+        return !used && isExpired();
     }
 
     public boolean canResend(long cooldownMinutes) {
@@ -60,10 +60,6 @@ public class VerificationToken {
         long secondsSinceLastSent = Duration.between(lastSentAt, LocalDateTime.now()).getSeconds();
         long cooldownSeconds = cooldownMinutes * 60;
         return Math.max(0, cooldownSeconds - secondsSinceLastSent);
-    }
-
-    public void markAsUsed() {
-        this.used = true;
     }
 
     @PrePersist

@@ -45,8 +45,10 @@ public class SecurityConfig {
                 new CsrfTokenRequestAttributeHandler();
 
         http.authorizeHttpRequests(
-                authorize -> authorize.requestMatchers(HttpMethod.POST, "/api/auth/register")
-                        .permitAll()
+                authorize -> authorize.
+                        requestMatchers(HttpMethod.POST, "/api/auth/register",
+                                "/api/auth/resend-verification").permitAll().
+                        requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll()
         );
 
         http.formLogin(Customizer.withDefaults());
@@ -60,8 +62,8 @@ public class SecurityConfig {
                         csrfTokenRequestAttributeHandler)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .ignoringRequestMatchers("/api/auth/login", "/api/auth/register",
-                        "/api/auth/forgotPassword", "/api/auth/resetPassword/**",
-                        "/api/auth/refresh-token")
+                        "/api/auth/forgot-password", "/api/auth/reset-password",
+                        "/api/auth/refresh-token", "/api/auth/resend-verification")
         );
 
         http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);

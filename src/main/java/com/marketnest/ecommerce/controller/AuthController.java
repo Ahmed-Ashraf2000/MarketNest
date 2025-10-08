@@ -66,8 +66,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/verifyEmail/{token}")
-    public ResponseEntity<?> verifyEmail(@PathVariable String token) {
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        log.info(token);
         User user = verificationService.verifyToken(token);
 
         Map<String, String> response = new HashMap<>();
@@ -97,10 +98,11 @@ public class AuthController {
 
         String baseUrl = buildBaseUrl(httpRequest);
 
-        verificationService.sendVerificationEmail(user, baseUrl);
+        verificationService.resendVerificationEmail(user, baseUrl);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Verification email has been resent");
+        response.put("cooldownMinutes", verificationService.getResendCooldownMinutes());
 
         return ResponseEntity.ok(response);
 

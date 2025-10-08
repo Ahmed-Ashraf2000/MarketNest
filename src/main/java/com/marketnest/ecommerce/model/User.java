@@ -40,20 +40,8 @@ public class User {
     @Column(name = "email_verified")
     private boolean emailVerified;
 
-    @Column(name = "email_verification_token")
-    private String emailVerificationToken;
-
-    @Column(name = "email_verification_token_expire_at")
-    private LocalDateTime emailVerificationTokenExpireAt;
-
     @Column(name = "password_changed_at")
     private Instant passwordChangedAt;
-
-    @Column(name = "password_reset_token")
-    private String passwordResetToken;
-
-    @Column(name = "password_reset_token_expire_at")
-    private LocalDateTime passwordResetTokenExpireAT;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -66,6 +54,12 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
 
     public enum Role {
         CUSTOMER, ADMIN
