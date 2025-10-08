@@ -21,7 +21,7 @@ public class VerificationService {
     private final VerificationTokenRepository verificationTokenRepository;
 
     @Transactional
-    public String generateEmailVerificationToken() {
+    public String generateEmailVerificationToken(User user) {
         String verificationToken = tokenService.generateRandomToken();
         String hashedToken = tokenService.hashToken(verificationToken);
 
@@ -30,13 +30,14 @@ public class VerificationService {
         emailVerificationToken.setTokenType(VerificationToken.TokenType.EMAIL_VERIFICATION);
         emailVerificationToken.setExpiresAt(
                 tokenService.calculateExpirationDate(TokenService.TOKEN_TYPE_EMAIL_VERIFICATION));
+        emailVerificationToken.setUser(user);
 
         return verificationToken;
     }
 
     @Transactional
     public void sendVerificationEmail(User user, String baseUrl) {
-        String token = generateEmailVerificationToken();
+        String token = generateEmailVerificationToken(user);
         String verificationUrl = baseUrl + "/api/auth/verifyEmail/" + token;
 
         String subject = "Verify Your Email";
