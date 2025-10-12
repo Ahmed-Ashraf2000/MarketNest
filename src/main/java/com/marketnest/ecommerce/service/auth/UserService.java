@@ -1,20 +1,12 @@
 package com.marketnest.ecommerce.service.auth;
 
-import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
-import com.marketnest.ecommerce.mapper.UserRegisterMapper;
-import com.marketnest.ecommerce.model.User;
-import com.marketnest.ecommerce.model.User.Role;
+import com.marketnest.ecommerce.mapper.auth.UserRegisterMapper;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.email.EmailServiceImpl;
 import com.marketnest.ecommerce.service.email.EmailTemplateService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Service
@@ -25,20 +17,6 @@ public class UserService {
     private final TokenService tokenService;
     private final EmailTemplateService emailTemplateService;
     private final UserRegisterMapper userRegisterMapper;
-
-    @Transactional
-    public User registerUser(UserRegistrationDto registrationDto, Role roleName) {
-        User user = userRegisterMapper.toEntity(registrationDto);
-
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-
-        user.setPassword(encodedPassword);
-        user.setActive(false);
-        user.setEmailVerified(false);
-        user.setRole(roleName);
-
-        return userRepository.save(user);
-    }
 
 //    @Transactional
 //    public void changePassword(String email, String currentPassword, String newPassword) {

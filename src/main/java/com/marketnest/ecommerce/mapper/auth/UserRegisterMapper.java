@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.mapper;
+package com.marketnest.ecommerce.mapper.auth;
 
 import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
 import com.marketnest.ecommerce.model.User;

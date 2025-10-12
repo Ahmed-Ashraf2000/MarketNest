@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,8 @@ public class ApplicationUsernamePwdAuthenticationProvider implements Authenticat
             throw new BadCredentialsException("Invalid email or password");
         }
 
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user);
 
         List<GrantedAuthority> authorities =
                 new ArrayList<>(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())));

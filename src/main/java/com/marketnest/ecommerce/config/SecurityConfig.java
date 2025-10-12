@@ -47,8 +47,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorize -> authorize.
                         requestMatchers(HttpMethod.POST, "/api/auth/register",
-                                "/api/auth/resend-verification").permitAll().
-                        requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll()
+                                "/api/auth/resend-verification", "/api/auth/login",
+                                "/api/auth/refresh-token").permitAll().
+                        requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll().
+                        requestMatchers(HttpMethod.GET, "/api/auth/login-history")
+                        .hasRole("CUSTOMER")
         );
 
         http.formLogin(Customizer.withDefaults());
@@ -84,7 +87,8 @@ public class SecurityConfig {
         );
 
         http.logout(logoutConfigurer -> logoutConfigurer.invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID", "X-XSRF-TOKEN").clearAuthentication(true));
+                .deleteCookies("JSESSIONID", "X-XSRF-TOKEN", "refresh_token")
+                .clearAuthentication(true));
 
         http.headers(headers -> headers
                 .contentSecurityPolicy(csp -> csp
