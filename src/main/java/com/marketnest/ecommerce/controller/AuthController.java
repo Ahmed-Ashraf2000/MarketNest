@@ -1,10 +1,7 @@
 package com.marketnest.ecommerce.controller;
 
 import com.marketnest.ecommerce.config.ApplicationContextProvider;
-import com.marketnest.ecommerce.dto.auth.LoginHistoryDto;
-import com.marketnest.ecommerce.dto.auth.LoginResponseDto;
-import com.marketnest.ecommerce.dto.auth.UserLoginDto;
-import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
+import com.marketnest.ecommerce.dto.auth.*;
 import com.marketnest.ecommerce.dto.error.SimpleErrorResponse;
 import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
 import com.marketnest.ecommerce.mapper.auth.UserLoginMapper;
@@ -14,6 +11,7 @@ import com.marketnest.ecommerce.model.User.Role;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.auth.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -215,6 +213,39 @@ public class AuthController {
         String email = authentication.getName();
         List<LoginHistoryDto> loginHistory = loginHistoryService.getUserLoginHistory(email);
         return ResponseEntity.ok(loginHistory);
+    }
+
+    @PatchMapping("/change-password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDto dto,
+                                            Authentication authentication,
+                                            BindingResult bindingResult,
+                                            HttpServletResponse response) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest()
+                    .body(new ValidationErrorResponse("Validation failed", errors));
+        }
+
+        String email = authentication.getName();
+
+        authService.changePassword(
+                email,
+                dto.getCurrentPassword(),
+                dto.getNewPassword()
+        );
+
+        SecurityContextHolder.clearContext();
+
+        response.setHeader("Authorization", "");
+
+        Map<String, String> responseMap = new HashMap<>();
+        responseMap.put("status", "success");
+        responseMap.put("message",
+                "Password changed successfully. Please login again with your new password.");
+        return ResponseEntity.ok(responseMap);
     }
 
 }

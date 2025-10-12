@@ -7,9 +7,12 @@ import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.email.EmailServiceImpl;
 import com.marketnest.ecommerce.service.email.EmailTemplateService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @AllArgsConstructor
 @Service
@@ -33,5 +36,23 @@ public class AuthService {
         user.setRole(roleName);
 
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException(
+                        "User belongs to this email " + email + " couldn't be found : "));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BadCredentialsException("Invalid current password");
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        user.setPassword(encodedPassword);
+        user.setPasswordChangedAt(Instant.now());
+
+        userRepository.save(user);
     }
 }

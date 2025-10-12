@@ -19,5 +19,4 @@ public class LoginResponseDto {
     private Role role;
     private String photoUrl;
     private LocalDateTime lastLoginAt;
-    private boolean emailVerified;
 }

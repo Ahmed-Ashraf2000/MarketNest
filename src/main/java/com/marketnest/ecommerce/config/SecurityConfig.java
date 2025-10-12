@@ -51,7 +51,9 @@ public class SecurityConfig {
                                 "/api/auth/refresh-token").permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/login-history")
-                        .hasRole("CUSTOMER")
+                        .hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
+                        .hasAnyRole("CUSTOMER", "ADMIN")
         );
 
         http.formLogin(Customizer.withDefaults());
