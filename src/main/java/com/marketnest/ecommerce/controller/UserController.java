@@ -2,6 +2,7 @@ package com.marketnest.ecommerce.controller;
 
 import com.marketnest.ecommerce.dto.error.SimpleErrorResponse;
 import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
+import com.marketnest.ecommerce.dto.user.AccountActionDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfilePhotoResponseDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfileRequestDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfileResponseDto;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -92,5 +94,38 @@ public class UserController {
         responseDto.setPhotoUrl(updatedUser.getPhotoUrl());
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/account-action")
+    public ResponseEntity<?> processAccountAction(
+            @Valid @RequestBody AccountActionDto accountActionDto,
+            Authentication authentication,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest()
+                    .body(new ValidationErrorResponse("Validation failed", errors));
+        }
+
+
+        String email = authentication.getName();
+
+        userService.processAccountAction(email, accountActionDto);
+
+        SecurityContextHolder.clearContext();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+
+        if (accountActionDto.getActionType() == AccountActionDto.ActionType.DEACTIVATE) {
+            response.put("message", "Your account has been deactivated successfully.");
+        } else {
+            response.put("message", "Your account has been deleted successfully.");
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

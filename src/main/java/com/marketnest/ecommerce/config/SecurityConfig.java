@@ -51,13 +51,15 @@ public class SecurityConfig {
                                 "/api/auth/refresh-token", "/api/auth/forgot-password",
                                 "/api/auth/reset-password").permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll().
-                        requestMatchers(HttpMethod.GET, "/api/auth/login-history")
+                        requestMatchers(HttpMethod.GET, "/api/auth/login-history",
+                                "/api/users/profile")
                         .hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
                         .hasAnyRole("CUSTOMER", "ADMIN").
                         requestMatchers(HttpMethod.POST, "/api/auth/logout")
                         .authenticated().
-                        requestMatchers(HttpMethod.POST, "/api/users/addresses")
+                        requestMatchers(HttpMethod.POST, "/api/users/addresses",
+                                "/api/users/account-action")
                         .hasRole("CUSTOMER").
                         requestMatchers(HttpMethod.GET, "/api/users/addresses/**")
                         .hasRole("CUSTOMER").
@@ -65,8 +67,6 @@ public class SecurityConfig {
                         .hasRole("CUSTOMER").
                         requestMatchers(HttpMethod.PATCH, "/api/users/addresses/**")
                         .hasRole("CUSTOMER").
-                        requestMatchers(HttpMethod.GET, "/api/users/profile")
-                        .hasAnyRole("CUSTOMER", "ADMIN").
                         requestMatchers(HttpMethod.PUT, "/api/users/profile")
                         .hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/users/profile/photo")

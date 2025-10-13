@@ -100,7 +100,7 @@ public class AuthController {
                     failedAuth, e));
 
             return ResponseEntity.badRequest()
-                    .body(new SimpleErrorResponse("Invalid username or password"));
+                    .body(new SimpleErrorResponse(e.getMessage()));
         }
     }
 
