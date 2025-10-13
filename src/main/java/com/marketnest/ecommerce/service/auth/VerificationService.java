@@ -1,5 +1,6 @@
 package com.marketnest.ecommerce.service.auth;
 
+import com.marketnest.ecommerce.exception.InvalidVerificationToken;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.model.VerificationToken;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -63,10 +64,12 @@ public class VerificationService {
         String hashedToken = tokenService.hashToken(token);
 
         VerificationToken verificationToken = verificationTokenRepository.findByToken(hashedToken)
-                .orElseThrow(() -> new RuntimeException("Invalid Email verification token"));
+                .orElseThrow(
+                        () -> new InvalidVerificationToken("Invalid Email verification token"));
 
         if (!verificationToken.isValid()) {
-            throw new RuntimeException("Email Verification token has expired or already used");
+            throw new InvalidVerificationToken(
+                    "Email Verification token has expired or already used");
         }
 
         verificationToken.setUsed(true);

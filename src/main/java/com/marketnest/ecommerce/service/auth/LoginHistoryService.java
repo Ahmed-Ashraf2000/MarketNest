@@ -1,6 +1,7 @@
 package com.marketnest.ecommerce.service.auth;
 
 import com.marketnest.ecommerce.dto.auth.LoginHistoryDto;
+import com.marketnest.ecommerce.exception.UserNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.LoginHistoryMapper;
 import com.marketnest.ecommerce.model.LoginHistory;
 import com.marketnest.ecommerce.model.User;
@@ -140,7 +141,7 @@ public class LoginHistoryService {
 
     public List<LoginHistoryDto> getUserLoginHistory(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         List<LoginHistory> history =
                 loginHistoryRepository.findByUserOrderByLoginTimestampDesc(user);

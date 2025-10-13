@@ -34,9 +34,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleUserNotFoundException() {
+    public ResponseEntity<SimpleErrorResponse> handleUserNotFoundException(
+            UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse("User not found"));
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidVerificationToken.class)
+    public ResponseEntity<SimpleErrorResponse> handleInvalidVerificationToken(
+            InvalidVerificationToken ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

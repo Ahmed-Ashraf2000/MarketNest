@@ -4,6 +4,7 @@ import com.marketnest.ecommerce.config.ApplicationContextProvider;
 import com.marketnest.ecommerce.dto.auth.*;
 import com.marketnest.ecommerce.dto.error.SimpleErrorResponse;
 import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
+import com.marketnest.ecommerce.exception.UserNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.UserLoginMapper;
 import com.marketnest.ecommerce.model.RefreshToken;
 import com.marketnest.ecommerce.model.User;
@@ -66,7 +67,7 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
 
             User user = userRepository.findByEmail(loginDto.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
 
             String token = jwtService.generateToken(authenticationResponse);
 

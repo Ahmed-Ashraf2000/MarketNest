@@ -1,6 +1,7 @@
 package com.marketnest.ecommerce.service.auth;
 
 import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
+import com.marketnest.ecommerce.exception.UserNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.UserRegisterMapper;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -41,7 +42,7 @@ public class AuthService {
     @Transactional
     public void changePassword(String email, String currentPassword, String newPassword) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new UserNotFoundException(
                         "User belongs to this email " + email + " couldn't be found : "));
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
