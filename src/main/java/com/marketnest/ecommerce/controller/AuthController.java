@@ -9,6 +9,7 @@ import com.marketnest.ecommerce.mapper.auth.UserLoginMapper;
 import com.marketnest.ecommerce.model.RefreshToken;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.model.User.Role;
+import com.marketnest.ecommerce.model.VerificationToken;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.auth.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +47,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final VerificationService verificationService;
+    private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
     private final UserLoginMapper userLoginMapper;
     private final RefreshTokenService refreshTokenService;
@@ -127,7 +128,7 @@ public class AuthController {
 
         String baseUrl = buildBaseUrl(request);
 
-        verificationService.sendVerificationEmail(savedUser, baseUrl);
+        tokenService.sendVerificationEmail(savedUser, baseUrl);
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
@@ -141,7 +142,7 @@ public class AuthController {
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         log.info(token);
-        User user = verificationService.verifyToken(token);
+        User user = tokenService.verifyToken(token, VerificationToken.TokenType.EMAIL_VERIFICATION);
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
@@ -152,9 +153,9 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/resend-verification")
-    public ResponseEntity<?> resendVerification(@RequestBody Map<String, String> request,
-                                                HttpServletRequest httpRequest) {
+    @PostMapping("/resend-token")
+    public ResponseEntity<?> resendToken(@RequestBody Map<String, String> request,
+                                         HttpServletRequest httpRequest) {
         String email = request.get("email");
         if (email == null || email.isEmpty()) {
             return ResponseEntity.badRequest()
@@ -164,23 +165,34 @@ public class AuthController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("No user found with this email"));
 
-        if (user.isEmailVerified()) {
-            return ResponseEntity.badRequest()
-                    .body(new SimpleErrorResponse("Email is already verified"));
+        String tokenType = request.get("tokenType");
+        VerificationToken.TokenType verificationTokenType =
+                VerificationToken.TokenType.EMAIL_VERIFICATION;
+
+        if (tokenType != null && tokenType.equalsIgnoreCase("PASSWORD_RESET")) {
+            verificationTokenType = VerificationToken.TokenType.PASSWORD_RESET;
+        } else {
+            if (user.isEmailVerified()) {
+                return ResponseEntity.badRequest()
+                        .body(new SimpleErrorResponse("Email is already verified"));
+            }
         }
 
         String baseUrl = buildBaseUrl(httpRequest);
 
-        verificationService.resendVerificationEmail(user, baseUrl);
+        tokenService.resendToken(user, baseUrl, verificationTokenType);
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
-        response.put("message", "Verification email has been resent");
-        response.put("cooldownMinutes", verificationService.getResendCooldownMinutes());
+        response.put("message",
+                verificationTokenType == VerificationToken.TokenType.EMAIL_VERIFICATION ?
+                        "Verification email has been resent" :
+                        "Password reset email has been resent");
+        response.put("cooldownMinutes", tokenService.getResendCooldownMinutes());
 
         return ResponseEntity.ok(response);
-
     }
+
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
@@ -249,4 +261,48 @@ public class AuthController {
         return ResponseEntity.ok(responseMap);
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDto dto,
+                                            BindingResult bindingResult,
+                                            HttpServletRequest request) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest()
+                    .body(new ValidationErrorResponse("Validation failed", errors));
+        }
+
+        String baseUrl = buildBaseUrl(request);
+
+        authService.forgotPassword(dto.getEmail(), baseUrl);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Password reset link sent to email");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String token,
+                                           @Valid @RequestBody ResetPasswordDto dto,
+                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest()
+                    .body(new ValidationErrorResponse("Validation failed", errors));
+        }
+
+        authService.resetPassword(token, dto.getPassword());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message",
+                "Password has been reset successfully. Please login with your new password.");
+
+        return ResponseEntity.ok(response);
+    }
 }

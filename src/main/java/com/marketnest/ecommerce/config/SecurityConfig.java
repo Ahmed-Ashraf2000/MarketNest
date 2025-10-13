@@ -47,8 +47,9 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorize -> authorize.
                         requestMatchers(HttpMethod.POST, "/api/auth/register",
-                                "/api/auth/resend-verification", "/api/auth/login",
-                                "/api/auth/refresh-token").permitAll().
+                                "/api/auth/resend-token", "/api/auth/login",
+                                "/api/auth/refresh-token", "/api/auth/forgot-password",
+                                "/api/auth/reset-password").permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/login-history")
                         .hasAnyRole("CUSTOMER", "ADMIN")
@@ -68,7 +69,7 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .ignoringRequestMatchers("/api/auth/login", "/api/auth/register",
                         "/api/auth/forgot-password", "/api/auth/reset-password",
-                        "/api/auth/refresh-token", "/api/auth/resend-verification")
+                        "/api/auth/refresh-token", "/api/auth/resend-token")
         );
 
         http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);

@@ -4,9 +4,8 @@ import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
 import com.marketnest.ecommerce.exception.UserNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.UserRegisterMapper;
 import com.marketnest.ecommerce.model.User;
+import com.marketnest.ecommerce.model.VerificationToken;
 import com.marketnest.ecommerce.repository.UserRepository;
-import com.marketnest.ecommerce.service.email.EmailServiceImpl;
-import com.marketnest.ecommerce.service.email.EmailTemplateService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,9 +19,7 @@ import java.time.Instant;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailServiceImpl emailService;
     private final TokenService tokenService;
-    private final EmailTemplateService emailTemplateService;
     private final UserRegisterMapper userRegisterMapper;
 
     @Transactional
@@ -56,4 +53,29 @@ public class AuthService {
 
         userRepository.save(user);
     }
+
+    @Transactional
+    public void forgotPassword(String email, String baseUrl) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("No user found with email: " + email));
+
+        tokenService.sendPasswordResetEmail(user, baseUrl);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        User user = tokenService.verifyToken(token, VerificationToken.TokenType.PASSWORD_RESET);
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new IllegalArgumentException(
+                    "New password cannot be the same as the old password");
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        user.setPasswordChangedAt(Instant.now());
+
+        userRepository.save(user);
+    }
+
 }

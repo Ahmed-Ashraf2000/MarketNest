@@ -14,7 +14,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailServiceImpl emailService;
-    private final TokenService tokenService;
     private final EmailTemplateService emailTemplateService;
     private final UserRegisterMapper userRegisterMapper;
 

@@ -48,9 +48,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<SimpleErrorResponse> handleIllegalArgumentException() {
+    public ResponseEntity<SimpleErrorResponse> handleIllegalArgumentException(
+            IllegalArgumentException ex) {
         return ResponseEntity.badRequest()
-                .body(new SimpleErrorResponse("Invalid request parameters"));
+                .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)

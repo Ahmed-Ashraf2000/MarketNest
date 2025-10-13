@@ -13,7 +13,7 @@ public class EmailTemplateService {
                verificationUrl + "\n\n" +
                "This link will expire in 24 hours.\n\n" +
                "If you did not create an account, please ignore this email.\n\n" +
-               "Regards,\nBank Security System Team";
+               "Regards,\nMarket Nest";
     }
 
     public String buildPasswordResetEmailBody(String username, String resetUrl) {
@@ -22,7 +22,7 @@ public class EmailTemplateService {
                resetUrl + "\n\n" +
                "This link will expire in 10 minutes.\n\n" +
                "If you did not request a password reset, please ignore this email.\n\n" +
-               "Regards,\nBank Security System Team";
+               "Regards,\nMarket Nest";
     }
 
     public String buildSecurityAlertEmailBody(String username, String timestamp,
