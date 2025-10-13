@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,7 +41,6 @@ import static com.marketnest.ecommerce.utils.AuthUtils.extractRefreshTokenFromCo
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Slf4j
 public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
@@ -141,7 +139,6 @@ public class AuthController {
 
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-        log.info(token);
         User user = tokenService.verifyToken(token, VerificationToken.TokenType.EMAIL_VERIFICATION);
 
         Map<String, String> response = new HashMap<>();
@@ -214,7 +211,7 @@ public class AuthController {
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
-        response.put("message", "New tokens issued successfully");
+        response.put("message", "New jwt issued successfully");
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + accessToken)
@@ -304,5 +301,35 @@ public class AuthController {
                 "Password has been reset successfully. Please login with your new password.");
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(Authentication authentication) {
+        if (authentication != null) {
+            String email = authentication.getName();
+            refreshTokenService.revokeAllUserTokens(userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found")));
+
+            SecurityContextHolder.clearContext();
+
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("Strict")
+                    .maxAge(0)
+                    .path("/")
+                    .build();
+
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("status", "success");
+            responseMap.put("message", "Logged out successfully");
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                    .header("Authorization", "")
+                    .body(responseMap);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new SimpleErrorResponse("Failed to process logout"));
     }
 }

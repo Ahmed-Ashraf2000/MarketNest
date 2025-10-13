@@ -54,7 +54,17 @@ public class SecurityConfig {
                         requestMatchers(HttpMethod.GET, "/api/auth/login-history")
                         .hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
-                        .hasAnyRole("CUSTOMER", "ADMIN")
+                        .hasAnyRole("CUSTOMER", "ADMIN").
+                        requestMatchers(HttpMethod.POST, "/api/auth/logout")
+                        .authenticated().
+                        requestMatchers(HttpMethod.POST, "/api/users/addresses")
+                        .hasRole("CUSTOMER").
+                        requestMatchers(HttpMethod.GET, "/api/users/addresses/**")
+                        .hasRole("CUSTOMER").
+                        requestMatchers(HttpMethod.PUT, "/api/users/addresses/**")
+                        .hasRole("CUSTOMER").
+                        requestMatchers(HttpMethod.PATCH, "/api/users/addresses/**")
+                        .hasRole("CUSTOMER")
         );
 
         http.formLogin(Customizer.withDefaults());
@@ -67,9 +77,7 @@ public class SecurityConfig {
         http.csrf(csrfConfigurer -> csrfConfigurer.csrfTokenRequestHandler(
                         csrfTokenRequestAttributeHandler)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/auth/login", "/api/auth/register",
-                        "/api/auth/forgot-password", "/api/auth/reset-password",
-                        "/api/auth/refresh-token", "/api/auth/resend-token")
+                .ignoringRequestMatchers("/api/**")
         );
 
         http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);
