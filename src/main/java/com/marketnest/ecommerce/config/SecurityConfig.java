@@ -64,7 +64,13 @@ public class SecurityConfig {
                         requestMatchers(HttpMethod.PUT, "/api/users/addresses/**")
                         .hasRole("CUSTOMER").
                         requestMatchers(HttpMethod.PATCH, "/api/users/addresses/**")
-                        .hasRole("CUSTOMER")
+                        .hasRole("CUSTOMER").
+                        requestMatchers(HttpMethod.GET, "/api/users/profile")
+                        .hasAnyRole("CUSTOMER", "ADMIN").
+                        requestMatchers(HttpMethod.PUT, "/api/users/profile")
+                        .hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users/profile/photo")
+                        .hasAnyRole("CUSTOMER", "ADMIN")
         );
 
         http.formLogin(Customizer.withDefaults());
