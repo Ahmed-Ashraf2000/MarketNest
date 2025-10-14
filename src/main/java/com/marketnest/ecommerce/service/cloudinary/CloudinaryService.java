@@ -13,10 +13,10 @@ import java.io.IOException;
 public class CloudinaryService {
     private final Cloudinary cloudinary;
 
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(MultipartFile file, String folder) {
         try {
             var params = ObjectUtils.asMap(
-                    "folder", "profiles",
+                    "folder", folder,
                     "resource_type", "auto",
                     "overwrite", true
             );
@@ -26,5 +26,13 @@ public class CloudinaryService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload image", e);
         }
+    }
+
+    public String uploadProfileImage(MultipartFile file) {
+        return uploadImage(file, "profiles");
+    }
+
+    public String uploadCategoryImage(MultipartFile file) {
+        return uploadImage(file, "categories");
     }
 }

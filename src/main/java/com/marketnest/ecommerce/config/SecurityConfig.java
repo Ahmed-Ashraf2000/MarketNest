@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/api/auth/resend-token", "/api/auth/login",
                                 "/api/auth/refresh-token", "/api/auth/forgot-password",
                                 "/api/auth/reset-password").permitAll().
-                        requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll().
+                        requestMatchers(HttpMethod.GET, "/api/auth/verify-email", "/api/categories",
+                                "/api/categories/{categoryId}").permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/login-history",
                                 "/api/users/profile")
                         .hasAnyRole("CUSTOMER", "ADMIN")
@@ -73,9 +74,16 @@ public class SecurityConfig {
                         .hasAnyRole("CUSTOMER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/{userId}")
                         .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/{userId}/status")
+                        .requestMatchers(HttpMethod.PATCH, "/api/users/{userId}/status")
                         .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}",
+                                "/api/categories/{categoryId}")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/categories")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/categories/{categoryId}")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/categories/{categoryId}/status")
                         .hasRole("ADMIN")
         );
 

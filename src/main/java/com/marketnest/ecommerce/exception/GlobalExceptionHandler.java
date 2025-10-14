@@ -40,6 +40,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleCategoryNotFoundException(
+            CategoryNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(AddressNotFound.class)
     public ResponseEntity<SimpleErrorResponse> handleAddressNotFoundException(
             AddressNotFound ex) {

@@ -90,7 +90,7 @@ public class UserController {
 
         String email = authentication.getName();
 
-        String photoUrl = cloudinaryService.uploadImage(file);
+        String photoUrl = cloudinaryService.uploadProfileImage(file);
 
         User updatedUser = userService.updateProfilePhoto(email, photoUrl);
 
@@ -148,7 +148,7 @@ public class UserController {
         return ResponseEntity.ok(profileDTO);
     }
 
-    @PutMapping("/{userId}/status")
+    @PatchMapping("/{userId}/status")
     public ResponseEntity<?> updateUserStatus(
             @PathVariable Long userId,
             @RequestBody UserStatusUpdateDto statusUpdateDto) {
