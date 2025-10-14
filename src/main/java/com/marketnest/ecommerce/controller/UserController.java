@@ -3,6 +3,7 @@ package com.marketnest.ecommerce.controller;
 import com.marketnest.ecommerce.dto.error.SimpleErrorResponse;
 import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
 import com.marketnest.ecommerce.dto.user.AccountActionDto;
+import com.marketnest.ecommerce.dto.user.UserStatusUpdateDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfilePhotoResponseDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfileRequestDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfileResponseDto;
@@ -13,6 +14,9 @@ import com.marketnest.ecommerce.service.cloudinary.CloudinaryService;
 import com.marketnest.ecommerce.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -125,6 +129,45 @@ public class UserController {
         } else {
             response.put("message", "Your account has been deleted successfully.");
         }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ProfileResponseDto>> getAllUsers(
+            @PageableDefault(sort = "userId") Pageable pageable) {
+        Page<User> users = userService.getAllUsers(pageable);
+        Page<ProfileResponseDto> userDtos = users.map(userProfileMapper::toProfileDTO);
+        return ResponseEntity.ok(userDtos);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ProfileResponseDto> getUserById(@PathVariable Long userId) {
+        User user = userService.getUserById(userId);
+        ProfileResponseDto profileDTO = userProfileMapper.toProfileDTO(user);
+        return ResponseEntity.ok(profileDTO);
+    }
+
+    @PutMapping("/{userId}/status")
+    public ResponseEntity<?> updateUserStatus(
+            @PathVariable Long userId,
+            @RequestBody UserStatusUpdateDto statusUpdateDto) {
+        User user = userService.updateUserStatus(userId, statusUpdateDto.isActive());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "User status updated successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+        userService.deleteUserById(userId);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "User deleted successfully");
 
         return ResponseEntity.ok(response);
     }
