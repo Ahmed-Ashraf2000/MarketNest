@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.service;
+package com.marketnest.ecommerce.service.category;
 
 import com.marketnest.ecommerce.dto.category.CategoryRequestDto;
 import com.marketnest.ecommerce.exception.CategoryNotFoundException;

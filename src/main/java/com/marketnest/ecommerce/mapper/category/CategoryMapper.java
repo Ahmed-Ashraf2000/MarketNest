@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.mapper;
+package com.marketnest.ecommerce.mapper.category;
 
 import com.marketnest.ecommerce.dto.category.CategoryResponseDto;
 import com.marketnest.ecommerce.model.Category;
