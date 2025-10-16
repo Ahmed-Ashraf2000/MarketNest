@@ -1,7 +1,8 @@
 package com.marketnest.ecommerce.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.marketnest.ecommerce.model.ProductImage;
+import com.marketnest.ecommerce.dto.image.ImageResponseDto;
+import com.marketnest.ecommerce.dto.variant.VariantResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,7 +37,9 @@ public class ProductResponseDto {
     private BigDecimal weight;
     private String dimensions;
 
-    private List<ProductImage> images;
+    private List<ImageResponseDto> images;
+
+    private List<VariantResponseDto> variants;
 
     private String metaTitle;
     private String metaDescription;

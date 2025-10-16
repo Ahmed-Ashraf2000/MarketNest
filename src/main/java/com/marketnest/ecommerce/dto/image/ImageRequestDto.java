@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.dto;
+package com.marketnest.ecommerce.dto.image;
 
 import com.marketnest.ecommerce.model.ProductImage;
 import jakarta.validation.constraints.Min;

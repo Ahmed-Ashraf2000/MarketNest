@@ -13,9 +13,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface VariantMapper {
 
-    @Mapping(target = "title", expression = "java(buildTitle(variant))")
-    @Mapping(target = "inStock", expression = "java(isInStock(variant))")
-    @Mapping(target = "onSale", expression = "java(isOnSale(variant))")
     VariantResponseDto toResponse(ProductVariant variant);
 
     List<VariantResponseDto> toResponseList(List<ProductVariant> variants);

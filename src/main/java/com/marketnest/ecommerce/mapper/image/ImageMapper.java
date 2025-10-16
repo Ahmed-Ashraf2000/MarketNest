@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.mapper.image;
 
-import com.marketnest.ecommerce.dto.ImageRequestDto;
-import com.marketnest.ecommerce.dto.variant.ImageResponseDto;
+import com.marketnest.ecommerce.dto.image.ImageRequestDto;
+import com.marketnest.ecommerce.dto.image.ImageResponseDto;
 import com.marketnest.ecommerce.model.ProductImage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

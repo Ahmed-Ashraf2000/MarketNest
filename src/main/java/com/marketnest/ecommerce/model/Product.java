@@ -96,4 +96,35 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<ProductImage> images = new ArrayList<>();
+
+    @Transient
+    public boolean isLowStock() {
+        return stockQuantity != null && lowStockThreshold != null
+               && stockQuantity <= lowStockThreshold;
+    }
+
+    @Transient
+    public boolean isInStock() {
+        return stockQuantity != null && stockQuantity > 0;
+    }
+
+    @Transient
+    public boolean isOnSale() {
+        return compareAtPrice != null && compareAtPrice.compareTo(price) > 0;
+    }
+
+    @Transient
+    public boolean hasVariants() {
+        return variants != null && !variants.isEmpty();
+    }
+
+    @Transient
+    public Integer getTotalStock() {
+        if (hasVariants()) {
+            return variants.stream()
+                    .mapToInt(v -> v.getStockQuantity() != null ? v.getStockQuantity() : 0)
+                    .sum();
+        }
+        return stockQuantity;
+    }
 }

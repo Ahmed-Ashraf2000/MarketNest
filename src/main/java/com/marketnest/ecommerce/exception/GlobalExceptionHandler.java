@@ -47,6 +47,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleProductNotFoundException(
+            ProductNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(ProductImageNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleProductImageNotFoundException(
+            ProductImageNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(AddressNotFound.class)
     public ResponseEntity<SimpleErrorResponse> handleAddressNotFoundException(
             AddressNotFound ex) {

@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.dto.variant;
+package com.marketnest.ecommerce.dto.image;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -35,4 +35,8 @@ public class CloudinaryService {
     public String uploadCategoryImage(MultipartFile file) {
         return uploadImage(file, "categories");
     }
+
+    public String uploadProductImage(MultipartFile file) {
+        return uploadImage(file, "products");
+    }
 }
