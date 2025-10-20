@@ -47,9 +47,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(WishlistNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleWishlistNotFoundException(
+            WishlistNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(CategoryNotFoundException.class)
     public ResponseEntity<SimpleErrorResponse> handleCategoryNotFoundException(
             CategoryNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(CartNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleCartNotFoundException(
+            CartNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }

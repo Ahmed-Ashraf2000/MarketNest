@@ -2,6 +2,7 @@ package com.marketnest.ecommerce.service.cart;
 
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
+import com.marketnest.ecommerce.exception.CategoryNotFoundException;
 import com.marketnest.ecommerce.exception.ProductNotFoundException;
 import com.marketnest.ecommerce.mapper.cart.CartMapper;
 import com.marketnest.ecommerce.model.Cart;
@@ -120,6 +121,6 @@ public class CartService {
 
     private Cart getUserCartOrThrow(Long userId) {
         return cartRepository.findByUserIdAndStatus(userId, Cart.CartStatus.ACTIVE)
-                .orElseThrow(() -> new ResourceNotFoundException("Active cart not found"));
+                .orElseThrow(() -> new CategoryNotFoundException("Active cart not found"));
     }
 }
