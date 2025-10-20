@@ -79,4 +79,14 @@ public class ProductVariant {
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<ProductImage> images = new ArrayList<>();
+
+    @Transient
+    public boolean isInStock() {
+        return stockQuantity != null && stockQuantity > 0;
+    }
+
+    @Transient
+    public boolean isOnSale() {
+        return compareAtPrice != null && compareAtPrice.compareTo(price) > 0;
+    }
 }

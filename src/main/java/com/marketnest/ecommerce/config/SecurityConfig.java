@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 "/api/categories/{categoryId}/products", "/api/products",
                                 "/api/products/featured",
                                 "/api/products/slug/{slug}", "/api/products/{productId}/related",
-                                "/api/products/new-arrivals", "/api/products/{productId}/images")
+                                "/api/products/new-arrivals", "/api/products/{productId}/images",
+                                "/api/products/{productId}/variants", "/api/variants/{variantId}")
                         .permitAll().
                         requestMatchers(HttpMethod.GET, "/api/auth/login-history",
                                 "/api/users/profile")
@@ -84,17 +85,20 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}",
                                 "/api/categories/{categoryId}", "/api/products/productId",
-                                "/api/products/{productId}/images/{imageId}")
+                                "/api/products/{productId}/images/{imageId}",
+                                "/api/variants/{variantId}")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/categories", "/api/products",
                                 "/api/products/{productId}/images",
-                                "/api/products/{productId}/images/batch")
+                                "/api/products/{productId}/images/batch",
+                                "/api/products/{productId}/variants")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/categories/{categoryId}")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/categories/{categoryId}/status")
                         .hasRole("ADMIN").
-                        requestMatchers(HttpMethod.PUT, "/api/products/{productId}")
+                        requestMatchers(HttpMethod.PUT, "/api/products/{productId}",
+                                "/api/variants/{variantId}")
                         .hasAnyRole("ADMIN")
 
         );
