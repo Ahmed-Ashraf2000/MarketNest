@@ -1,4 +1,4 @@
-package com.marketnest.ecommerce.utils;
+package com.marketnest.ecommerce.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 

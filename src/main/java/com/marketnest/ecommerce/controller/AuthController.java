@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.marketnest.ecommerce.utils.AuthUtils.buildBaseUrl;
-import static com.marketnest.ecommerce.utils.AuthUtils.extractRefreshTokenFromCookie;
+import static com.marketnest.ecommerce.util.AuthUtils.buildBaseUrl;
+import static com.marketnest.ecommerce.util.AuthUtils.extractRefreshTokenFromCookie;
 
 @RestController
 @RequestMapping("/api/auth")

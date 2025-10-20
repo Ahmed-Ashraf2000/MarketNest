@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.marketnest.ecommerce.utils.AuthUtils.*;
+import static com.marketnest.ecommerce.util.AuthUtils.*;
 
 @Service
 @RequiredArgsConstructor

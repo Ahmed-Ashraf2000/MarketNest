@@ -44,64 +44,60 @@ public class SecurityConfig {
         CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler =
                 new CsrfTokenRequestAttributeHandler();
 
-        http.authorizeHttpRequests(
-                authorize -> authorize.
-                        requestMatchers(HttpMethod.POST, "/api/auth/register",
-                                "/api/auth/resend-token", "/api/auth/login",
-                                "/api/auth/refresh-token", "/api/auth/forgot-password",
-                                "/api/auth/reset-password").permitAll().
-                        requestMatchers(HttpMethod.GET, "/api/auth/verify-email", "/api/categories",
-                                "/api/categories/{categoryId}", "/api/products/{productId}",
-                                "/api/categories/{categoryId}/products", "/api/products",
-                                "/api/products/featured",
-                                "/api/products/slug/{slug}", "/api/products/{productId}/related",
-                                "/api/products/new-arrivals", "/api/products/{productId}/images",
-                                "/api/products/{productId}/variants", "/api/variants/{variantId}")
-                        .permitAll().
-                        requestMatchers(HttpMethod.GET, "/api/auth/login-history",
-                                "/api/users/profile")
-                        .hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
-                        .hasAnyRole("CUSTOMER", "ADMIN").
-                        requestMatchers(HttpMethod.POST, "/api/auth/logout")
-                        .authenticated().
-                        requestMatchers(HttpMethod.POST, "/api/users/addresses",
-                                "/api/users/account-action")
-                        .hasRole("CUSTOMER").
-                        requestMatchers(HttpMethod.GET, "/api/users/addresses/**")
-                        .hasRole("CUSTOMER").
-                        requestMatchers(HttpMethod.PUT, "/api/users/addresses/**")
-                        .hasRole("CUSTOMER").
-                        requestMatchers(HttpMethod.PATCH, "/api/users/addresses/**")
-                        .hasRole("CUSTOMER").
-                        requestMatchers(HttpMethod.PUT, "/api/users/profile")
-                        .hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/users/profile/photo")
-                        .hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/{userId}")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/users/{userId}/status",
-                                "/api/products/{productId}/status")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/{userId}",
-                                "/api/categories/{categoryId}", "/api/products/productId",
-                                "/api/products/{productId}/images/{imageId}",
-                                "/api/variants/{variantId}")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/categories", "/api/products",
-                                "/api/products/{productId}/images",
-                                "/api/products/{productId}/images/batch",
-                                "/api/products/{productId}/variants")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/categories/{categoryId}")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/categories/{categoryId}/status")
-                        .hasRole("ADMIN").
-                        requestMatchers(HttpMethod.PUT, "/api/products/{productId}",
-                                "/api/variants/{variantId}")
-                        .hasAnyRole("ADMIN")
+        http.authorizeHttpRequests(authorize -> {
+            authorize
 
-        );
+                    // Public endpoints
+                    .requestMatchers(HttpMethod.POST,
+                            "/api/auth/register", "/api/auth/resend-token", "/api/auth/login",
+                            "/api/auth/refresh-token", "/api/auth/forgot-password",
+                            "/api/auth/reset-password").permitAll()
+                    .requestMatchers(HttpMethod.GET,
+                            "/api/auth/verify-email",
+                            "/api/categories/**",
+                            "/api/products/**",
+                            "/api/variants/{variantId}").permitAll()
+
+                    // Authenticated users only
+                    .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+
+                    // Customer & Admin shared access
+                    .requestMatchers("/api/cart/**").hasAnyRole("CUSTOMER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/auth/login-history",
+                            "/api/users/profile").hasAnyRole("CUSTOMER", "ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
+                    .hasAnyRole("CUSTOMER", "ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/users/profile")
+                    .hasAnyRole("CUSTOMER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/users/profile/photo")
+                    .hasAnyRole("CUSTOMER", "ADMIN")
+
+                    // Customer-only access
+                    .requestMatchers("/api/users/addresses/**").hasRole("CUSTOMER")
+                    .requestMatchers(HttpMethod.POST, "/api/users/account-action")
+                    .hasRole("CUSTOMER")
+
+                    // Admin-only access
+                    .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PATCH,
+                            "/api/users/{userId}/status",
+                            "/api/products/{productId}/status",
+                            "/api/categories/{categoryId}",
+                            "/api/categories/{categoryId}/status").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE,
+                            "/api/users/{userId}",
+                            "/api/categories/{categoryId}",
+                            "/api/products/**",
+                            "/api/variants/{variantId}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST,
+                            "/api/categories",
+                            "/api/products",
+                            "/api/products/{productId}/images/**",
+                            "/api/products/{productId}/variants").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT,
+                            "/api/products/{productId}",
+                            "/api/variants/{variantId}").hasRole("ADMIN");
+        });
 
         http.formLogin(Customizer.withDefaults());
 
