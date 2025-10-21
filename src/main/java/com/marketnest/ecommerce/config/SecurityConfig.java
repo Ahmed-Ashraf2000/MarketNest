@@ -62,7 +62,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
 
                     // Customer & Admin shared access
-                    .requestMatchers("/api/cart/**", "/api/wishlist/**")
+                    .requestMatchers("/api/cart/**", "/api/wishlist/**", "/api/orders/**")
                     .hasAnyRole("CUSTOMER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/auth/login-history",
                             "/api/users/profile").hasAnyRole("CUSTOMER", "ADMIN")
