@@ -1,10 +1,11 @@
 package com.marketnest.ecommerce.service.order;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.marketnest.ecommerce.dto.order.OrderRequestDto;
 import com.marketnest.ecommerce.dto.order.OrderResponseDto;
 import com.marketnest.ecommerce.dto.order.OrderSummaryDto;
@@ -173,65 +174,168 @@ public class OrderService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             Document document = new Document();
-            PdfWriter.getInstance(document, outputStream);
+            PdfWriter writer = PdfWriter.getInstance(document, outputStream);
             document.open();
 
-            // Add  header
-            document.add(new Paragraph("MarketNest"));
-            document.add(new Paragraph("Invoice #" + order.getId()));
-            document.add(new Paragraph("Date: " + order.getOrderDate().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
+            // Define colors and fonts
+            BaseColor primaryColor = new BaseColor(41, 128, 185);
+            BaseColor lightGray = new BaseColor(236, 240, 241);
+            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, primaryColor);
+            Font subHeaderFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
+            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+            Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
+            Font smallFont = FontFactory.getFont(FontFactory.HELVETICA, 8, BaseColor.DARK_GRAY);
+
+            // Header section
+            Paragraph companyName = new Paragraph("MarketNest", headerFont);
+            companyName.setAlignment(Element.ALIGN_LEFT);
+            document.add(companyName);
+
+            Paragraph invoiceTitle = new Paragraph("INVOICE #" + order.getId(), subHeaderFont);
+            invoiceTitle.setAlignment(Element.ALIGN_RIGHT);
+            document.add(invoiceTitle);
+
+            Paragraph invoiceDate = new Paragraph("Date: " + order.getOrderDate().format(
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")), normalFont);
+            invoiceDate.setAlignment(Element.ALIGN_RIGHT);
+            document.add(invoiceDate);
+
+            // Add separator line
+            LineSeparator ls = new LineSeparator();
+            ls.setLineColor(primaryColor);
+            ls.setLineWidth(1.5f);
+            document.add(new Chunk(ls));
+
             document.add(new Paragraph("\n"));
 
-            // Add customer information
-            document.add(new Paragraph("Customer: " + order.getUser().getFirstName() + " " +
-                                       order.getUser().getLastName()));
-            document.add(new Paragraph("Email: " + order.getUser().getEmail()));
+            // Customer and shipping info in a table
+            PdfPTable infoTable = new PdfPTable(2);
+            infoTable.setWidthPercentage(100);
+
+            // Customer information
+            PdfPCell customerCell = new PdfPCell();
+            customerCell.setBorder(Rectangle.NO_BORDER);
+            customerCell.addElement(new Paragraph("BILLED TO:", boldFont));
+            customerCell.addElement(new Paragraph(order.getUser().getFirstName() + " " +
+                                                  order.getUser().getLastName(), normalFont));
+            customerCell.addElement(new Paragraph(order.getUser().getEmail(), normalFont));
+
+            Address billingAddress = order.getBillingAddress() != null ?
+                    order.getBillingAddress() : order.getShippingAddress();
+            customerCell.addElement(new Paragraph(formatAddress(billingAddress), normalFont));
+            infoTable.addCell(customerCell);
+
+            // Shipping information
+            PdfPCell shippingCell = new PdfPCell();
+            shippingCell.setBorder(Rectangle.NO_BORDER);
+            shippingCell.addElement(new Paragraph("SHIPPED TO:", boldFont));
+            shippingCell.addElement(
+                    new Paragraph(formatAddress(order.getShippingAddress()), normalFont));
+            infoTable.addCell(shippingCell);
+
+            document.add(infoTable);
             document.add(new Paragraph("\n"));
 
-            // Add shipping address
-            document.add(new Paragraph("Shipping Address:"));
-            document.add(new Paragraph(formatAddress(order.getShippingAddress())));
+            // Order items table with styling
+            PdfPTable itemsTable = new PdfPTable(5);
+            itemsTable.setWidthPercentage(100);
+            itemsTable.setWidths(new float[]{3f, 2f, 1f, 2f, 2f});
 
-            // Add billing address if different
-            if (order.getBillingAddress() != null &&
-                !order.getBillingAddress().getId().equals(order.getShippingAddress().getId())) {
-                document.add(new Paragraph("Billing Address:"));
-                document.add(new Paragraph(formatAddress(order.getBillingAddress())));
+            // Table headers with styling
+            String[] headers = {"Product", "Variant", "Quantity", "Unit Price", "Total"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, boldFont));
+                cell.setBackgroundColor(primaryColor);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(5);
+                cell.setBorderColor(BaseColor.WHITE);
+                itemsTable.addCell(cell);
             }
-            document.add(new Paragraph("\n"));
 
-            PdfPTable table = new PdfPTable(5);
-            table.setWidthPercentage(100);
-
-            // Set table headers
-            table.addCell("Product");
-            table.addCell("Variant");
-            table.addCell("Quantity");
-            table.addCell("Unit Price");
-            table.addCell("Total");
-
-            // Add order items
+            // Table data with alternating row colors
+            boolean alternate = false;
             for (OrderItem item : order.getOrderItems()) {
-                table.addCell(item.getProduct().getName());
-                table.addCell(item.getVariant().getOption1Name());
-                table.addCell(String.valueOf(item.getQuantity()));
-                table.addCell(formatCurrency(item.getUnitPrice()));
-                table.addCell(formatCurrency(item.getTotalPrice()));
+                BaseColor rowColor = alternate ? lightGray : BaseColor.WHITE;
+                alternate = !alternate;
+
+                // Product name
+                PdfPCell cell = new PdfPCell(new Phrase(item.getProduct().getName(), normalFont));
+                cell.setBackgroundColor(rowColor);
+                cell.setPadding(5);
+                itemsTable.addCell(cell);
+
+                // Variant
+                cell = new PdfPCell(new Phrase(item.getVariant().getOption1Name(), normalFont));
+                cell.setBackgroundColor(rowColor);
+                cell.setPadding(5);
+                itemsTable.addCell(cell);
+
+                // Quantity
+                cell = new PdfPCell(new Phrase(String.valueOf(item.getQuantity()), normalFont));
+                cell.setBackgroundColor(rowColor);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(5);
+                itemsTable.addCell(cell);
+
+                // Unit price
+                cell = new PdfPCell(new Phrase(formatCurrency(item.getUnitPrice()), normalFont));
+                cell.setBackgroundColor(rowColor);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                cell.setPadding(5);
+                itemsTable.addCell(cell);
+
+                // Total price
+                cell = new PdfPCell(new Phrase(formatCurrency(item.getTotalPrice()), normalFont));
+                cell.setBackgroundColor(rowColor);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                cell.setPadding(5);
+                itemsTable.addCell(cell);
             }
 
-            document.add(table);
+            document.add(itemsTable);
             document.add(new Paragraph("\n"));
 
-            // Add order summary
-            document.add(new Paragraph("Subtotal: " + formatCurrency(order.getSubtotal())));
-            document.add(new Paragraph("Shipping: " + formatCurrency(order.getShippingCost())));
-            document.add(new Paragraph("Tax: " + formatCurrency(order.getTax())));
-            document.add(new Paragraph("Discount: " + formatCurrency(order.getDiscount())));
-            document.add(new Paragraph("Total: " + formatCurrency(order.getTotal())));
+            // Order summary table - right aligned
+            PdfPTable summaryTable = new PdfPTable(2);
+            summaryTable.setWidthPercentage(40);
+            summaryTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            summaryTable.setSpacingBefore(10);
 
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("Thank you for your purchase!"));
+            // Add summary rows
+            addSummaryRow(summaryTable, "Subtotal:", order.getSubtotal(), normalFont, boldFont);
+            addSummaryRow(summaryTable, "Shipping:", order.getShippingCost(), normalFont, boldFont);
+            addSummaryRow(summaryTable, "Tax:", order.getTax(), normalFont, boldFont);
+            addSummaryRow(summaryTable, "Discount:", order.getDiscount(), normalFont, boldFont);
+
+            // Add total with different styling
+            PdfPCell totalLabelCell = new PdfPCell(new Phrase("TOTAL:", boldFont));
+            totalLabelCell.setBorder(Rectangle.TOP);
+            totalLabelCell.setPaddingTop(5);
+            summaryTable.addCell(totalLabelCell);
+
+            PdfPCell totalValueCell = new PdfPCell(new Phrase(formatCurrency(order.getTotal()),
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, primaryColor)));
+            totalValueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            totalValueCell.setBorder(Rectangle.TOP);
+            totalValueCell.setPaddingTop(5);
+            summaryTable.addCell(totalValueCell);
+
+            document.add(summaryTable);
+
+            // Add thank you message
+            Paragraph thankYou = new Paragraph("\nThanks for your Trust!",
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, primaryColor));
+            thankYou.setAlignment(Element.ALIGN_CENTER);
+            document.add(thankYou);
+
+            // Add footer
+            Rectangle pageSize = document.getPageSize();
+            ColumnText.showTextAligned(writer.getDirectContent(),
+                    Element.ALIGN_CENTER,
+                    new Phrase("MarketNest · support@marketnest.com", smallFont),
+                    pageSize.getWidth() / 2,
+                    pageSize.getBottom() + 20,
+                    0);
 
             document.close();
             return outputStream.toByteArray();
@@ -239,6 +343,19 @@ public class OrderService {
             throw new RuntimeException("Failed to generate invoice PDF", e);
         }
     }
+
+    private void addSummaryRow(PdfPTable table, String label, BigDecimal value,
+                               Font labelFont, Font valueFont) {
+        PdfPCell labelCell = new PdfPCell(new Phrase(label, labelFont));
+        labelCell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(labelCell);
+
+        PdfPCell valueCell = new PdfPCell(new Phrase(formatCurrency(value), valueFont));
+        valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        valueCell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(valueCell);
+    }
+
 
     private String formatAddress(Address address) {
         return address.getAddressLine1() + "\n" +
