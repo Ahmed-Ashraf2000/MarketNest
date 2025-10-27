@@ -51,18 +51,20 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST,
                             "/api/auth/register", "/api/auth/resend-token", "/api/auth/login",
                             "/api/auth/refresh-token", "/api/auth/forgot-password",
-                            "/api/auth/reset-password").permitAll()
+                            "/api/auth/reset-password", "/webhook").permitAll()
                     .requestMatchers(HttpMethod.GET,
                             "/api/auth/verify-email",
                             "/api/categories/**",
                             "/api/products/**",
-                            "/api/variants/{variantId}").permitAll()
+                            "/api/variants/{variantId}",
+                            "/api/payments/methods").permitAll()
 
                     // Authenticated users only
                     .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
 
                     // Customer & Admin shared access
-                    .requestMatchers("/api/cart/**", "/api/wishlist/**", "/api/orders/**")
+                    .requestMatchers("/api/cart/**", "/api/wishlist/**", "/api/orders/**",
+                            "/api/payments/process", "/api/payments/{paymentId}")
                     .hasAnyRole("CUSTOMER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/auth/login-history",
                             "/api/users/profile").hasAnyRole("CUSTOMER", "ADMIN")
@@ -94,7 +96,8 @@ public class SecurityConfig {
                             "/api/categories",
                             "/api/products",
                             "/api/products/{productId}/images/**",
-                            "/api/products/{productId}/variants").hasRole("ADMIN")
+                            "/api/products/{productId}/variants",
+                            "/api/payments/{paymentId}/refund").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT,
                             "/api/products/{productId}",
                             "/api/variants/{variantId}").hasRole("ADMIN");
