@@ -57,7 +57,9 @@ public class SecurityConfig {
                             "/api/categories/**",
                             "/api/products/**",
                             "/api/variants/{variantId}",
-                            "/api/payments/methods").permitAll()
+                            "/api/payments/methods",
+                            "/api/reviews/{reviewId}",
+                            "/api/reviews/{reviewId}").permitAll()
 
                     // Authenticated users only
                     .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
@@ -70,9 +72,11 @@ public class SecurityConfig {
                             "/api/users/profile").hasAnyRole("CUSTOMER", "ADMIN")
                     .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
                     .hasAnyRole("CUSTOMER", "ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/users/profile")
+                    .requestMatchers(HttpMethod.PUT, "/api/users/profile",
+                            "/api/reviews/{reviewId}", "/api/reviews/{reviewId}")
                     .hasAnyRole("CUSTOMER", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/users/profile/photo")
+                    .requestMatchers(HttpMethod.POST, "/api/users/profile/photo",
+                            "/api/products/{productId}/reviews", "/api/reviews/{reviewId}/helpful")
                     .hasAnyRole("CUSTOMER", "ADMIN")
 
                     // Customer-only access
@@ -81,17 +85,21 @@ public class SecurityConfig {
                     .hasRole("CUSTOMER")
 
                     // Admin-only access
-                    .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/users/**", "/api/admin/reviews")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PATCH,
                             "/api/users/{userId}/status",
                             "/api/products/{productId}/status",
                             "/api/categories/{categoryId}",
-                            "/api/categories/{categoryId}/status").hasRole("ADMIN")
+                            "/api/categories/{categoryId}/status",
+                            "/api/admin/reviews/{reviewId}/approve",
+                            "/api/admin/reviews/{reviewId}/reject").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE,
                             "/api/users/{userId}",
                             "/api/categories/{categoryId}",
                             "/api/products/**",
-                            "/api/variants/{variantId}").hasRole("ADMIN")
+                            "/api/variants/{variantId}",
+                            "/api/admin/reviews/{reviewId}").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST,
                             "/api/categories",
                             "/api/products",
