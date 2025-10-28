@@ -62,7 +62,9 @@ public class SecurityConfig {
                             "/api/reviews/{reviewId}").permitAll()
 
                     // Authenticated users only
-                    .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/logout", "/api/coupons/validate")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/coupons/available").authenticated()
 
                     // Customer & Admin shared access
                     .requestMatchers("/api/cart/**", "/api/wishlist/**", "/api/orders/**",
@@ -85,7 +87,8 @@ public class SecurityConfig {
                     .hasRole("CUSTOMER")
 
                     // Admin-only access
-                    .requestMatchers(HttpMethod.GET, "/api/users/**", "/api/admin/reviews")
+                    .requestMatchers("/api/users/**", "/api/admin/reviews",
+                            "/api/admin/coupons/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PATCH,
                             "/api/users/{userId}/status",

@@ -54,12 +54,34 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(CouponUsageLimitExceededException.class)
+    public ResponseEntity<SimpleErrorResponse> handleCouponUsageLimitExceededException(
+            CouponUsageLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCouponException.class)
+    public ResponseEntity<SimpleErrorResponse> handleInvalidCouponException(
+            InvalidCouponException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(CouponNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleCouponNotFoundException(
+            CouponNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new SimpleErrorResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(ReviewNotFoundException.class)
     public ResponseEntity<SimpleErrorResponse> handleReviewNotFoundException(
             ReviewNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
+
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<SimpleErrorResponse> handleDuplicateResourceException(
