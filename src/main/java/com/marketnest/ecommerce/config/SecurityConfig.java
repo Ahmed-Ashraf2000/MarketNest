@@ -88,7 +88,7 @@ public class SecurityConfig {
 
                     // Admin-only access
                     .requestMatchers("/api/users/**", "/api/admin/reviews",
-                            "/api/admin/coupons/**")
+                            "/api/admin/coupons/**", "/api/admin/analytics/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PATCH,
                             "/api/users/{userId}/status",
