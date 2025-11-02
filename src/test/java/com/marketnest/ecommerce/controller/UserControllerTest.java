@@ -62,14 +62,14 @@ class UserControllerTest {
         testUser = new User();
         testUser.setUserId(1L);
         testUser.setEmail("test@example.com");
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
+        testUser.setFirstName("Ahmed");
+        testUser.setLastName("Ashraf");
 
         profileResponseDto = new ProfileResponseDto();
         profileResponseDto.setUserId(1L);
         profileResponseDto.setEmail("test@example.com");
-        profileResponseDto.setFirstName("John");
-        profileResponseDto.setLastName("Doe");
+        profileResponseDto.setFirstName("Ahmed");
+        profileResponseDto.setLastName("Ashraf");
     }
 
     @Test

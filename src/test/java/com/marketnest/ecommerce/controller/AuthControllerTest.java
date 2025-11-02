@@ -70,8 +70,8 @@ class AuthControllerTest {
         testUser = new User();
         testUser.setUserId(1L);
         testUser.setEmail("test@example.com");
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
+        testUser.setFirstName("Ahmed");
+        testUser.setLastName("Ashraf");
         testUser.setRole(User.Role.CUSTOMER);
     }
 
@@ -128,8 +128,8 @@ class AuthControllerTest {
         registrationDto.setEmail("newuser@example.com");
         registrationDto.setPassword("Password_123");
         registrationDto.setConfirmPassword("Password_123");
-        registrationDto.setFirstName("John");
-        registrationDto.setLastName("Doe");
+        registrationDto.setFirstName("Ahmed");
+        registrationDto.setLastName("Ashraf");
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(authService.registerUser(any(), any())).thenReturn(testUser);

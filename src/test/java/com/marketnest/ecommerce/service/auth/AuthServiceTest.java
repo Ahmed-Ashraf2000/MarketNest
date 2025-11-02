@@ -48,15 +48,15 @@ class AuthServiceTest {
         testUser.setUserId(1L);
         testUser.setEmail("test@example.com");
         testUser.setPassword("Password_123");
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
+        testUser.setFirstName("Ahmed");
+        testUser.setLastName("Ashraf");
         testUser.setRole(User.Role.CUSTOMER);
 
         registrationDto = new UserRegistrationDto();
         registrationDto.setEmail("test@example.com");
         registrationDto.setPassword("Password_123");
-        registrationDto.setFirstName("John");
-        registrationDto.setLastName("Doe");
+        registrationDto.setFirstName("Ahmed");
+        registrationDto.setLastName("Ashraf");
     }
 
     @Test

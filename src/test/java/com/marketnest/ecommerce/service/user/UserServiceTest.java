@@ -45,8 +45,8 @@ class UserServiceTest {
         testUser = new User();
         testUser.setUserId(1L);
         testUser.setEmail("test@example.com");
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
+        testUser.setFirstName("Ahmed");
+        testUser.setLastName("Ashraf");
         testUser.setPassword("encodedPassword");
         testUser.setActive(true);
     }

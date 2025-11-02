@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserRepositoryTest {
 
     @Container
+    @SuppressWarnings("resource")
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("testdb")
             .withUsername("test")
@@ -45,9 +46,9 @@ class UserRepositoryTest {
 
         testUser = new User();
         testUser.setEmail("test@example.com");
-        testUser.setPassword("password");
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
+        testUser.setPassword("Password_123");
+        testUser.setFirstName("Ahmed");
+        testUser.setLastName("Ashraf");
         testUser.setRole(User.Role.CUSTOMER);
         testUser.setActive(true);
         testUser.setEmailVerified(true);
