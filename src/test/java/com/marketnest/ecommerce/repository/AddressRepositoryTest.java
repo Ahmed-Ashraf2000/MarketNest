@@ -60,8 +60,8 @@ class AddressRepositoryTest {
 
         testAddress = new Address();
         testAddress.setAddressLine1("123 Main St");
-        testAddress.setCity("New York");
-        testAddress.setStateProvince("NY");
+        testAddress.setCity("Cairo");
+        testAddress.setStateProvince("CA");
         testAddress.setPostalCode("10001");
         testAddress.setCountryCode("EG");
         testAddress.setUser(testUser);
@@ -73,7 +73,7 @@ class AddressRepositoryTest {
         addressRepository.save(testAddress);
 
         Address secondAddress = new Address();
-        secondAddress.setAddressLine1("456 Oak Ave");
+        secondAddress.setAddressLine1("456  ST");
         secondAddress.setCity("Giza");
         secondAddress.setStateProvince("CA");
         secondAddress.setPostalCode("90001");
@@ -85,7 +85,7 @@ class AddressRepositoryTest {
 
         assertThat(addresses).hasSize(2);
         assertThat(addresses).extracting(Address::getAddressLine1)
-                .containsExactlyInAnyOrder("123 Main St", "456 Oak Ave");
+                .containsExactlyInAnyOrder("123 Main St", "456 ST");
     }
 
     @Test
@@ -191,7 +191,7 @@ class AddressRepositoryTest {
         Address address1 = addressRepository.save(testAddress);
 
         Address address2 = new Address();
-        address2.setAddressLine1("456 Oak Ave");
+        address2.setAddressLine1("456 ST");
         address2.setCity("Giza");
         address2.setStateProvince("CA");
         address2.setPostalCode("90001");
@@ -202,7 +202,7 @@ class AddressRepositoryTest {
 
         Optional<Address> defaultAddress = addressRepository.findAddressByDefaultAddressIs(true);
         assertThat(defaultAddress).isPresent();
-        assertThat(defaultAddress.get().getAddressLine1()).isEqualTo("456 Oak Ave");
+        assertThat(defaultAddress.get().getAddressLine1()).isEqualTo("456 ST");
 
         address2.setDefaultAddress(false);
         addressRepository.save(address2);
