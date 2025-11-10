@@ -95,7 +95,7 @@ class EmailTemplateServiceTest {
     @Test
     void buildSecurityAlertEmailBody_shouldContainAllParameters() {
         String username = "Ahmed Ashraf";
-        String timestamp = "2024-01-15 10:30:00";
+        String timestamp = "2025-01-15 10:30:00";
         String ipAddress = "192.168.1.1";
         String location = "Cairo, EGY";
         String deviceInfo = "Chrome/Linux";
@@ -115,7 +115,7 @@ class EmailTemplateServiceTest {
     @Test
     void buildSecurityAlertEmailBody_shouldBeHtmlFormat() {
         String username = "Test User";
-        String timestamp = "2024-01-15 10:30:00";
+        String timestamp = "2025-01-15 10:30:00";
         String ipAddress = "10.0.0.1";
         String location = "London, UK";
         String deviceInfo = "Safari/MacOS";
@@ -203,7 +203,7 @@ class EmailTemplateServiceTest {
     @Test
     void buildSuccessfulLoginEmailBody_shouldContainAllParameters() {
         String username = "Ahmed Ashraf";
-        String timestamp = "2024-01-15 14:20:00";
+        String timestamp = "2025-01-15 14:20:00";
         String ipAddress = "10.20.30.40";
         String location = "San Francisco, USA";
         String deviceInfo = "Firefox/Windows";

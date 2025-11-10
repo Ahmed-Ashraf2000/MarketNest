@@ -100,13 +100,13 @@ class AnalyticsServiceTest {
 
     @Test
     void getSalesStatistics_ShouldReturnStatisticsForDateRange() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = LocalDate.of(2024, 1, 31);
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 1, 31);
 
         List<Object[]> mockResults = Arrays.asList(
-                new Object[]{Date.valueOf("2024-01-01"), 10L, new BigDecimal("5000.00"),
+                new Object[]{Date.valueOf("2025-01-01"), 10L, new BigDecimal("5000.00"),
                         new BigDecimal("500.00")},
-                new Object[]{Date.valueOf("2024-01-02"), 15L, new BigDecimal("7500.00"),
+                new Object[]{Date.valueOf("2025-01-02"), 15L, new BigDecimal("7500.00"),
                         new BigDecimal("500.00")}
         );
 
@@ -118,7 +118,7 @@ class AnalyticsServiceTest {
 
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals(LocalDate.of(2024, 1, 1), result.getFirst().getDate());
+        assertEquals(LocalDate.of(2025, 1, 1), result.getFirst().getDate());
         assertEquals(10L, result.getFirst().getOrderCount());
         assertEquals(new BigDecimal("5000.00"), result.getFirst().getTotalSales());
 
@@ -166,8 +166,8 @@ class AnalyticsServiceTest {
 
     @Test
     void getRevenueReport_ShouldReturnReportForDateRange() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = LocalDate.of(2024, 1, 31);
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 1, 31);
 
         List<RevenueReportDto> result = analyticsService.getRevenueReport(startDate, endDate);
 

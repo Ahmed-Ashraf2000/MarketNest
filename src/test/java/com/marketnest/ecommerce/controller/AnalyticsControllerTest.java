@@ -59,8 +59,8 @@ class AnalyticsControllerTest {
 
     @Test
     void getSalesStatistics_ShouldReturnOkWithDateRange() throws Exception {
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = LocalDate.of(2024, 1, 31);
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 1, 31);
 
         List<SalesStatisticsDto> statistics = Arrays.asList(
                 new SalesStatisticsDto(startDate, 10L, new BigDecimal("5000.00"),
@@ -72,8 +72,8 @@ class AnalyticsControllerTest {
         when(analyticsService.getSalesStatistics(startDate, endDate)).thenReturn(statistics);
 
         mockMvc.perform(get("/api/admin/analytics/sales")
-                        .param("startDate", "2024-01-01")
-                        .param("endDate", "2024-01-31")
+                        .param("startDate", "2025-01-01")
+                        .param("endDate", "2025-01-31")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].orderCount").value(10))
@@ -139,8 +139,8 @@ class AnalyticsControllerTest {
 
     @Test
     void getRevenueReport_ShouldReturnOkWithDateRange() throws Exception {
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = LocalDate.of(2024, 1, 31);
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 1, 31);
 
         List<RevenueReportDto> report = List.of(
                 new RevenueReportDto(startDate, new BigDecimal("5000.00"),
@@ -150,8 +150,8 @@ class AnalyticsControllerTest {
         when(analyticsService.getRevenueReport(startDate, endDate)).thenReturn(report);
 
         mockMvc.perform(get("/api/admin/analytics/revenue")
-                        .param("startDate", "2024-01-01")
-                        .param("endDate", "2024-01-31")
+                        .param("startDate", "2025-01-01")
+                        .param("endDate", "2025-01-31")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].grossRevenue").value(5000.00))
