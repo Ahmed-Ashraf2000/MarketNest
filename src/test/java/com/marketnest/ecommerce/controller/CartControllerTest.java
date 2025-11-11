@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.cart.UpdateCartItemRequest;
+import com.marketnest.ecommerce.exception.CartNotFoundException;
 import com.marketnest.ecommerce.exception.CategoryNotFoundException;
 import com.marketnest.ecommerce.exception.ProductNotFoundException;
 import com.marketnest.ecommerce.model.User;
@@ -13,10 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -40,10 +40,10 @@ class CartControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
+    @MockBean
     private CartService cartService;
 
-    @MockitoBean
+    @MockBean
     private UserRepository userRepository;
 
     private User testUser;
@@ -170,7 +170,7 @@ class CartControllerTest {
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartService.updateCartItemQuantity(anyLong(), anyLong(), anyInt()))
-                .thenThrow(new ResourceNotFoundException("Cart item not found"));
+                .thenThrow(new CartNotFoundException("Cart item not found"));
 
         mockMvc.perform(patch("/api/cart/items/999")
                         .with(csrf())
@@ -198,7 +198,7 @@ class CartControllerTest {
     void removeCartItem_shouldReturn404_whenItemNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartService.removeCartItem(anyLong(), anyLong()))
-                .thenThrow(new ResourceNotFoundException("Cart item not found"));
+                .thenThrow(new CartNotFoundException("Cart item not found"));
 
         mockMvc.perform(delete("/api/cart/items/999")
                         .with(csrf()))

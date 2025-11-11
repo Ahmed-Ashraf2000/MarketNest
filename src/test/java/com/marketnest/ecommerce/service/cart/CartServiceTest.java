@@ -2,6 +2,7 @@ package com.marketnest.ecommerce.service.cart;
 
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
+import com.marketnest.ecommerce.exception.CartNotFoundException;
 import com.marketnest.ecommerce.exception.CategoryNotFoundException;
 import com.marketnest.ecommerce.exception.ProductNotFoundException;
 import com.marketnest.ecommerce.mapper.cart.CartMapper;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -187,7 +187,7 @@ class CartServiceTest {
                 .thenReturn(Optional.of(testCart));
 
         assertThatThrownBy(() -> cartService.updateCartItemQuantity(1L, 999L, 5))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(CartNotFoundException.class)
                 .hasMessageContaining("Cart item not found");
     }
 
@@ -227,7 +227,7 @@ class CartServiceTest {
                 .thenReturn(Optional.of(testCart));
 
         assertThatThrownBy(() -> cartService.removeCartItem(1L, 999L))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(CartNotFoundException.class)
                 .hasMessageContaining("Cart item not found");
     }
 

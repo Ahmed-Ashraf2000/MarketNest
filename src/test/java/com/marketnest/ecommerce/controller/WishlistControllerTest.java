@@ -5,6 +5,7 @@ import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.wishlist.AddWishlistItemRequest;
 import com.marketnest.ecommerce.dto.wishlist.WishlistResponse;
 import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.WishlistNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.model.WishlistItem;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -13,10 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -39,10 +39,10 @@ class WishlistControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
+    @MockBean
     private WishlistService wishlistService;
 
-    @MockitoBean
+    @MockBean
     private UserRepository userRepository;
 
     private User testUser;
@@ -152,7 +152,7 @@ class WishlistControllerTest {
     void removeFromWishlist_shouldReturn404_whenItemNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(wishlistService.removeFromWishlist(anyLong(), anyLong()))
-                .thenThrow(new ResourceNotFoundException("Item not found"));
+                .thenThrow(new WishlistNotFoundException("Item not found"));
 
         mockMvc.perform(delete("/api/wishlist/items/999")
                         .with(csrf()))
@@ -194,7 +194,7 @@ class WishlistControllerTest {
     void moveToCart_shouldReturn404_whenItemNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(wishlistService.moveToCart(anyLong(), anyLong()))
-                .thenThrow(new ResourceNotFoundException("Item not found"));
+                .thenThrow(new WishlistNotFoundException("Item not found"));
 
         mockMvc.perform(post("/api/wishlist/items/999/move-to-cart")
                         .with(csrf()))

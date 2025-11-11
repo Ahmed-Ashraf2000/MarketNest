@@ -60,6 +60,14 @@ public class SecurityConfig {
                             "/api/payments/methods",
                             "/api/reviews/{reviewId}",
                             "/api/reviews/{reviewId}").permitAll()
+                    .requestMatchers(
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/api-docs",
+                            "/api-docs/**",
+                            "/v3/api-docs",
+                            "/v3/api-docs/**"
+                    ).permitAll()
 
                     // Authenticated users only
                     .requestMatchers(HttpMethod.POST, "/api/auth/logout", "/api/coupons/validate")
@@ -124,7 +132,7 @@ public class SecurityConfig {
         http.csrf(csrfConfigurer -> csrfConfigurer.csrfTokenRequestHandler(
                         csrfTokenRequestAttributeHandler)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/**")
+                .ignoringRequestMatchers("/**")
         );
 
         http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);

@@ -16,7 +16,6 @@ import com.marketnest.ecommerce.repository.WishlistRepository;
 import com.marketnest.ecommerce.service.cart.CartService;
 import com.marketnest.ecommerce.util.HtmlEscapeUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +61,7 @@ public class WishlistService {
         Wishlist wishlist = getUserWishlistOrThrow(userId);
 
         WishlistItem itemToRemove = wishlistItemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Wishlist item not found"));
+                .orElseThrow(() -> new WishlistNotFoundException("Wishlist item not found"));
 
         if (!itemToRemove.getWishlist().getId().equals(wishlist.getId())) {
             throw new IllegalArgumentException("Item does not belong to user's wishlist");
@@ -89,7 +88,7 @@ public class WishlistService {
         Wishlist wishlist = getUserWishlistOrThrow(userId);
 
         WishlistItem itemToMove = wishlistItemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Wishlist item not found"));
+                .orElseThrow(() -> new WishlistNotFoundException("Wishlist item not found"));
 
         if (!itemToMove.getWishlist().getId().equals(wishlist.getId())) {
             throw new IllegalArgumentException("Item does not belong to user's wishlist");

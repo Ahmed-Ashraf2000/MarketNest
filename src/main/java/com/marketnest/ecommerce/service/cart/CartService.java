@@ -2,6 +2,7 @@ package com.marketnest.ecommerce.service.cart;
 
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
+import com.marketnest.ecommerce.exception.CartNotFoundException;
 import com.marketnest.ecommerce.exception.CategoryNotFoundException;
 import com.marketnest.ecommerce.exception.ProductNotFoundException;
 import com.marketnest.ecommerce.mapper.cart.CartMapper;
@@ -14,7 +15,6 @@ import com.marketnest.ecommerce.repository.ProductRepository;
 import com.marketnest.ecommerce.util.HtmlEscapeUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -67,7 +67,7 @@ public class CartService {
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found"));
+                .orElseThrow(() -> new CartNotFoundException("Cart item not found"));
 
         cartItem.setQuantity(quantity);
         cartItemRepository.save(cartItem);
@@ -84,7 +84,7 @@ public class CartService {
         CartItem itemToRemove = cart.getCartItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found"));
+                .orElseThrow(() -> new CartNotFoundException("Cart item not found"));
 
         cart.removeCartItem(itemToRemove);
         cartItemRepository.delete(itemToRemove);

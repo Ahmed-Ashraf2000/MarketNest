@@ -66,7 +66,6 @@ class ProductServiceTest {
         product.setIsActive(true);
 
         productRequestDto = new ProductRequestDto();
-        productRequestDto.setSku("SKU001");
         productRequestDto.setName("Laptop");
         productRequestDto.setPrice(new BigDecimal("999.99"));
         productRequestDto.setCategoryId(1L);

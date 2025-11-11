@@ -12,6 +12,15 @@ import com.marketnest.ecommerce.model.User.Role;
 import com.marketnest.ecommerce.model.VerificationToken;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.auth.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -41,6 +50,10 @@ import static com.marketnest.ecommerce.util.AuthUtils.extractRefreshTokenFromCoo
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(
+        name = "Authentication",
+        description = "Endpoints for user authentication, registration, password management, and session handling"
+)
 public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
@@ -53,9 +66,43 @@ public class AuthController {
 
 
     @PostMapping("/login")
+    @Operation(
+            summary = "User login",
+            description = "Authenticate user with email and password. Returns JWT access token in Authorization header and refresh token in HTTP-only cookie"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Login successful",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginResponseDto.class)
+                    ),
+                    headers = {
+                            @io.swagger.v3.oas.annotations.headers.Header(
+                                    name = "Authorization",
+                                    description = "JWT access token with Bearer prefix",
+                                    schema = @Schema(type = "string",
+                                            example = "Bearer eyJhbGciOiJIUzI1NiIs...")
+                            ),
+                            @io.swagger.v3.oas.annotations.headers.Header(
+                                    name = "Set-Cookie",
+                                    description = "HTTP-only secure refresh token cookie",
+                                    schema = @Schema(type = "string")
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid credentials",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDto loginDto) {
         try {
-
             Authentication authentication =
                     UsernamePasswordAuthenticationToken.unauthenticated(loginDto.getEmail(),
                             loginDto.getPassword());
@@ -73,7 +120,6 @@ public class AuthController {
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
             LoginResponseDto loginResponseDto = userLoginMapper.toLoginResponse(user);
-
 
             ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken.getToken())
                     .httpOnly(true)
@@ -105,6 +151,31 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Register new user",
+            description = "Create a new customer account. Sends email verification link to the provided email address"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Registration successful. Verification email sent",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"Registration successful! Please check your email to verify your account.\",\"email\":\"user@example.com\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation errors or email already registered",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {ValidationErrorResponse.class,
+                                    SimpleErrorResponse.class})
+                    )
+            )
+    })
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto registrationDto,
                                           BindingResult bindingResult,
                                           HttpServletRequest request) {
@@ -138,7 +209,35 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    @Operation(
+            summary = "Verify email address",
+            description = "Verify user's email address using the token sent to their email"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Email verified successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"Email verified successfully! You can now log in to your account.\",\"Email\":\"user@example.com\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid or expired token",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
+    public ResponseEntity<?> verifyEmail(
+            @Parameter(description = "Email verification token", required = true,
+                    example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+            @RequestParam String token
+    ) {
         User user = tokenService.verifyToken(token, VerificationToken.TokenType.EMAIL_VERIFICATION);
 
         Map<String, String> response = new HashMap<>();
@@ -151,8 +250,43 @@ public class AuthController {
     }
 
     @PostMapping("/resend-token")
-    public ResponseEntity<?> resendToken(@RequestBody Map<String, String> request,
-                                         HttpServletRequest httpRequest) {
+    @Operation(
+            summary = "Resend verification token",
+            description = "Resend email verification or password reset token. Subject to cooldown period to prevent abuse"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Token resent successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"Verification email has been resent\",\"cooldownMinutes\":\"5\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request, email missing, already verified, or cooldown period active",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
+    public ResponseEntity<?> resendToken(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request body with email and optional token type",
+                    required = true,
+                    content = @Content(
+                            examples = @ExampleObject(
+                                    value = "{\"email\":\"user@example.com\",\"tokenType\":\"EMAIL_VERIFICATION\"}"
+                            )
+                    )
+            )
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest
+    ) {
         String email = request.get("email");
         if (email == null || email.isEmpty()) {
             return ResponseEntity.badRequest()
@@ -190,8 +324,37 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping("/refresh-token")
+    @Operation(
+            summary = "Refresh access token",
+            description = "Get a new JWT access token using the refresh token stored in HTTP-only cookie"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "New access token generated successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"New jwt issued successfully\"}"
+                            )
+                    ),
+                    headers = @io.swagger.v3.oas.annotations.headers.Header(
+                            name = "Authorization",
+                            description = "New JWT access token with Bearer prefix",
+                            schema = @Schema(type = "string",
+                                    example = "Bearer eyJhbGciOiJIUzI1NiIs...")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Refresh token missing or invalid",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         String requestRefreshToken = extractRefreshTokenFromCookie(request);
 
@@ -219,6 +382,29 @@ public class AuthController {
     }
 
     @GetMapping("/login-history")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(
+            summary = "Get user login history",
+            description = "Retrieve the authenticated user's login history including timestamps, IP addresses, and devices"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Login history retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginHistoryDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - valid JWT required",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
     public ResponseEntity<?> getLoginHistory(Authentication authentication) {
         String email = authentication.getName();
         List<LoginHistoryDto> loginHistory = loginHistoryService.getUserLoginHistory(email);
@@ -226,6 +412,40 @@ public class AuthController {
     }
 
     @PatchMapping("/change-password")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(
+            summary = "Change password",
+            description = "Change the authenticated user's password. Requires current password verification. Invalidates all existing sessions"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Password changed successfully. User needs to login again",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"Password changed successfully. Please login again with your new password.\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation errors or incorrect current password",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {ValidationErrorResponse.class,
+                                    SimpleErrorResponse.class})
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - valid JWT required",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDto dto,
                                             Authentication authentication,
                                             BindingResult bindingResult,
@@ -259,6 +479,30 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
+    @Operation(
+            summary = "Request password reset",
+            description = "Send password reset link to user's email address. Link expires after configured time"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Password reset link sent successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"message\":\"Password reset link sent to email\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation errors",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ValidationErrorResponse.class)
+                    )
+            )
+    })
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDto dto,
                                             BindingResult bindingResult,
                                             HttpServletRequest request) {
@@ -281,9 +525,38 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String token,
-                                           @Valid @RequestBody ResetPasswordDto dto,
-                                           BindingResult bindingResult) {
+    @Operation(
+            summary = "Reset password",
+            description = "Reset user password using the token received via email. Token expires after configured time"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Password reset successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"Password has been reset successfully. Please login with your new password.\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation errors or invalid/expired token",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {ValidationErrorResponse.class,
+                                    SimpleErrorResponse.class})
+                    )
+            )
+    })
+    public ResponseEntity<?> resetPassword(
+            @Parameter(description = "Password reset token from email", required = true,
+                    example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+            @RequestParam String token,
+            @Valid @RequestBody ResetPasswordDto dto,
+            BindingResult bindingResult
+    ) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->
@@ -304,6 +577,51 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(
+            summary = "User logout",
+            description = "Logout user by revoking all refresh tokens and clearing session. Clears refresh token cookie and Authorization header"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Logout successful",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"status\":\"success\",\"message\":\"Logged out successfully\"}"
+                            )
+                    ),
+                    headers = {
+                            @io.swagger.v3.oas.annotations.headers.Header(
+                                    name = "Set-Cookie",
+                                    description = "Clears the refresh_token cookie",
+                                    schema = @Schema(type = "string")
+                            ),
+                            @io.swagger.v3.oas.annotations.headers.Header(
+                                    name = "Authorization",
+                                    description = "Clears the Authorization header",
+                                    schema = @Schema(type = "string")
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - valid JWT required",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error during logout",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleErrorResponse.class)
+                    )
+            )
+    })
     public ResponseEntity<?> logout(Authentication authentication) {
         if (authentication != null) {
             String email = authentication.getName();

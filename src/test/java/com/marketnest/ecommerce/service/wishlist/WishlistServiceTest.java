@@ -4,6 +4,7 @@ import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.wishlist.AddWishlistItemRequest;
 import com.marketnest.ecommerce.dto.wishlist.WishlistResponse;
 import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.WishlistNotFoundException;
 import com.marketnest.ecommerce.mapper.wishlist.WishlistMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.model.Wishlist;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -171,7 +171,7 @@ class WishlistServiceTest {
         when(wishlistRepository.findByUserId(1L)).thenReturn(Optional.of(testWishlist));
 
         assertThatThrownBy(() -> wishlistService.removeFromWishlist(1L, 999L))
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(WishlistNotFoundException.class);
 
         verify(wishlistRepository, never()).save(any());
     }
@@ -211,7 +211,7 @@ class WishlistServiceTest {
         when(wishlistRepository.findByUserId(1L)).thenReturn(Optional.of(testWishlist));
 
         assertThatThrownBy(() -> wishlistService.moveToCart(1L, 999L))
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(WishlistNotFoundException.class);
 
         verify(cartService, never()).addToCart(anyLong(), any());
     }
