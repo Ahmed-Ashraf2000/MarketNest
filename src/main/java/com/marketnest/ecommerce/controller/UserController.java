@@ -12,6 +12,12 @@ import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.cloudinary.CloudinaryService;
 import com.marketnest.ecommerce.service.user.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,12 +36,21 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
     private final UserRepository userRepository;
     private final UserProfileMapper userProfileMapper;
     private final UserService userService;
     private final CloudinaryService cloudinaryService;
 
+    @Operation(summary = "Get user profile",
+            description = "Retrieves the profile of the currently authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile retrieved successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProfileResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/profile")
     public ResponseEntity<ProfileResponseDto> getUserProfile(Authentication authentication) {
         String email = authentication.getName();
@@ -48,6 +63,16 @@ public class UserController {
         return ResponseEntity.ok(profileDTO);
     }
 
+    @Operation(summary = "Update user profile",
+            description = "Updates the profile of the currently authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile updated successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProfileResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class)))
+    })
     @PutMapping("/profile")
     public ResponseEntity<?> updateUserProfile(
             @Valid @RequestBody ProfileRequestDto requestDto,
@@ -72,6 +97,16 @@ public class UserController {
         return ResponseEntity.ok(profileDTO);
     }
 
+    @Operation(summary = "Update profile photo",
+            description = "Uploads and updates the profile photo of the currently authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile photo updated successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProfilePhotoResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid file uploaded",
+                    content = @Content(
+                            schema = @Schema(implementation = SimpleErrorResponse.class)))
+    })
     @PostMapping("/profile/photo")
     public ResponseEntity<?> updateProfilePhoto(
             @RequestParam("file") MultipartFile file,
@@ -100,6 +135,15 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @Operation(summary = "Process account action",
+            description = "Processes account actions such as deactivation or deletion.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Account action processed successfully"),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class)))
+    })
     @PostMapping("/account-action")
     public ResponseEntity<?> processAccountAction(
             @Valid @RequestBody AccountActionDto accountActionDto,
@@ -113,7 +157,6 @@ public class UserController {
             return ResponseEntity.badRequest()
                     .body(new ValidationErrorResponse("Validation failed", errors));
         }
-
 
         String email = authentication.getName();
 
@@ -133,6 +176,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Get all users", description = "Retrieves a paginated list of all users.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponseDto.class)))
+    })
     @GetMapping
     public ResponseEntity<Page<ProfileResponseDto>> getAllUsers(
             @PageableDefault(sort = "userId") Pageable pageable) {
@@ -141,6 +189,13 @@ public class UserController {
         return ResponseEntity.ok(userDtos);
     }
 
+    @Operation(summary = "Get user by ID", description = "Retrieves a user by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User retrieved successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProfileResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/{userId}")
     public ResponseEntity<ProfileResponseDto> getUserById(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
@@ -148,6 +203,12 @@ public class UserController {
         return ResponseEntity.ok(profileDTO);
     }
 
+    @Operation(summary = "Update user status",
+            description = "Updates the status (active/inactive) of a user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PatchMapping("/{userId}/status")
     public ResponseEntity<?> updateUserStatus(
             @PathVariable Long userId,
@@ -161,6 +222,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Delete user", description = "Deletes a user by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         userService.deleteUserById(userId);

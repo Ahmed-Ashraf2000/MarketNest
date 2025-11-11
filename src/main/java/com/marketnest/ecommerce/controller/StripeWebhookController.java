@@ -5,6 +5,12 @@ import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,11 +20,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/webhook")
 @Slf4j
+@Tag(name = "Stripe Webhook", description = "APIs for handling Stripe webhook events")
 public class StripeWebhookController {
 
     @Value("${stripe.webhook.secret}")
     private String webhookSecret;
 
+    @Operation(summary = "Handle Stripe webhook",
+            description = "Processes incoming Stripe webhook events.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Webhook processed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid signature",
+                    content = @Content(schema = @Schema(implementation = String.class)))
+    })
     @PostMapping
     public ResponseEntity<String> handleStripeWebhook(
             @RequestBody String payload,

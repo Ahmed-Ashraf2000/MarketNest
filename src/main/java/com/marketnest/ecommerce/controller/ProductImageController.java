@@ -4,6 +4,12 @@ import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
 import com.marketnest.ecommerce.dto.image.ImageRequestDto;
 import com.marketnest.ecommerce.model.ProductImage;
 import com.marketnest.ecommerce.service.product.ProductImageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +27,20 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/products/{productId}/images")
 @RequiredArgsConstructor
+@Tag(name = "Product Image Management", description = "APIs for managing product images")
 public class ProductImageController {
 
     private final ProductImageService productImageService;
 
+    @Operation(summary = "Upload a product image",
+            description = "Uploads a single image for a product.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Image uploaded successfully",
+                    content = @Content(schema = @Schema(implementation = ProductImage.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class)))
+    })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProductImage(
             @PathVariable Long productId,
@@ -42,6 +58,13 @@ public class ProductImageController {
                 .body(productImageService.uploadProductImage(productId, imageRequestDto));
     }
 
+    @Operation(summary = "Upload multiple product images",
+            description = "Uploads multiple images for a product.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Images uploaded successfully",
+                    content = @Content(schema = @Schema(implementation = ProductImage.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed")
+    })
     @PostMapping(value = "/batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadMultipleProductImages(
             @PathVariable Long productId,
@@ -61,6 +84,12 @@ public class ProductImageController {
                 .body(productImageService.uploadMultipleProductImages(productId, requests));
     }
 
+    @Operation(summary = "Delete a product image",
+            description = "Deletes a specific image of a product.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Image deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Image not found")
+    })
     @DeleteMapping("/{imageId}")
     public ResponseEntity<?> deleteProductImage(
             @PathVariable Long productId,
@@ -70,6 +99,11 @@ public class ProductImageController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get product images", description = "Retrieves all images for a product.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Images retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProductImage.class)))
+    })
     @GetMapping
     public ResponseEntity<?> getProductImages(
             @PathVariable Long productId,

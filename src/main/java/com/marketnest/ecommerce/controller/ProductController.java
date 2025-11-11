@@ -2,7 +2,14 @@ package com.marketnest.ecommerce.controller;
 
 import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
 import com.marketnest.ecommerce.dto.product.ProductRequestDto;
+import com.marketnest.ecommerce.dto.product.ProductResponseDto;
 import com.marketnest.ecommerce.service.product.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -20,10 +27,20 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Tag(name = "Product Management", description = "APIs for managing products")
 public class ProductController {
 
     private final ProductService productService;
 
+    @Operation(summary = "Create a new product", description = "Creates a new product.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Product created successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequestDto request,
                                            BindingResult bindingResult) {
@@ -40,11 +57,28 @@ public class ProductController {
                 .body(productService.createProduct(request));
     }
 
+    @Operation(summary = "Get product by ID", description = "Retrieves a product by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product retrieved successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
+    @Operation(summary = "Update a product", description = "Updates an existing product.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product updated successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @PutMapping("/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable Long productId,
                                            @Valid @RequestBody ProductRequestDto request,
@@ -61,18 +95,37 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(productId, request));
     }
 
+    @Operation(summary = "Delete a product", description = "Deletes a product by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Update product status",
+            description = "Updates the status of a product (active/inactive).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product status updated successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @PatchMapping("/{productId}/status")
     public ResponseEntity<?> updateProductStatus(@PathVariable Long productId,
                                                  @RequestParam Boolean isActive) {
         return ResponseEntity.ok(productService.updateProductStatus(productId, isActive));
     }
 
+    @Operation(summary = "Get all products",
+            description = "Retrieves a paginated list of products with optional filters.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Products retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProductResponseDto.class)))
+    })
     @GetMapping
     public ResponseEntity<?> getAllProducts(
             @RequestParam(required = false) Long categoryId,
@@ -97,12 +150,27 @@ public class ProductController {
                 pageable));
     }
 
+    @Operation(summary = "Get product by slug", description = "Retrieves a product by its slug.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product retrieved successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @GetMapping("/slug/{slug}")
     public ResponseEntity<?> getProductBySlug(@PathVariable String slug) {
-
         return ResponseEntity.ok(productService.getProductBySlug(slug));
     }
 
+    @Operation(summary = "Get related products",
+            description = "Retrieves related products for a given product ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Related products retrieved successfully",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @GetMapping("/{productId}/related")
     public ResponseEntity<?> getRelatedProducts(
             @PathVariable Long productId,
@@ -120,6 +188,12 @@ public class ProductController {
                 productService.getRelatedProducts(productId, activeOnly, limit, pageable));
     }
 
+    @Operation(summary = "Get new arrivals",
+            description = "Retrieves a paginated list of new arrival products.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "New arrivals retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProductResponseDto.class)))
+    })
     @GetMapping("/new-arrivals")
     public ResponseEntity<?> getNewArrivals(
             @RequestParam(defaultValue = "true") boolean activeOnly,
@@ -133,6 +207,13 @@ public class ProductController {
                 productService.getNewArrivals(activeOnly, limit, pageable));
     }
 
+    @Operation(summary = "Get featured products",
+            description = "Retrieves a paginated list of featured products.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Featured products retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProductResponseDto.class)))
+    })
     @GetMapping("/featured")
     public ResponseEntity<?> getFeaturedProducts(
             @RequestParam(defaultValue = "true") boolean activeOnly,
