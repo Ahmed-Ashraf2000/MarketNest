@@ -12,7 +12,6 @@ This is a comprehensive and secure RESTful API for an e-commerce platform called
   - [Installation](#installation)
 - [API Endpoints](#api-endpoints)
 - [Configuration](#configuration)
-- [Running Tests](#running-tests)
 
 ## About the Project
 
