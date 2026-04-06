@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.service.auth;
 
 import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.UserRegisterMapper;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -114,7 +114,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.changePassword("unknown@example.com", "old", "new"))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -135,7 +135,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(
                 () -> authService.forgotPassword("unknown@example.com", "http://localhost"))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(tokenService, never()).sendPasswordResetEmail(any(), anyString());
     }

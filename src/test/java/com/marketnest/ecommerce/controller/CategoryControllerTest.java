@@ -5,7 +5,7 @@ import com.marketnest.ecommerce.dto.category.CategoryRequestDto;
 import com.marketnest.ecommerce.dto.category.CategoryResponseDto;
 import com.marketnest.ecommerce.dto.category.CategoryStatusUpdateDto;
 import com.marketnest.ecommerce.dto.product.ProductResponseDto;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.category.CategoryMapper;
 import com.marketnest.ecommerce.model.Category;
 import com.marketnest.ecommerce.service.category.CategoryService;
@@ -118,7 +118,7 @@ class CategoryControllerTest {
     @Test
     void getCategoryById_shouldReturnNotFound_whenNotExists() throws Exception {
         when(categoryService.getCategoryById(999L))
-                .thenThrow(new CategoryNotFoundException("Category not found with id: 999"));
+                .thenThrow(new ResourceNotFoundException("Category", "id", 999L));
 
         mockMvc.perform(get("/api/categories/999"))
                 .andExpect(status().isNotFound());
@@ -211,7 +211,7 @@ class CategoryControllerTest {
 
     @Test
     void deleteCategory_shouldReturnNotFound_whenNotExists() throws Exception {
-        doThrow(new CategoryNotFoundException("Category not found with id: 999"))
+        doThrow(new ResourceNotFoundException("Category", "id", 999L))
                 .when(categoryService).deleteCategory(999L);
 
         mockMvc.perform(delete("/api/categories/999"))

@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketnest.ecommerce.dto.review.CreateReviewRequest;
 import com.marketnest.ecommerce.dto.review.ReviewResponse;
 import com.marketnest.ecommerce.dto.review.UpdateReviewRequest;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.ReviewNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.review.ReviewService;
@@ -107,7 +106,7 @@ class ReviewControllerTest {
     @Test
     void getReviewDetails_shouldReturn404_whenNotFound() throws Exception {
         when(reviewService.getReviewById(anyLong()))
-                .thenThrow(new ReviewNotFoundException("Review not found"));
+                .thenThrow(new ResourceNotFoundException("Review not found"));
 
         mockMvc.perform(get("/api/reviews/999"))
                 .andExpect(status().isNotFound());
@@ -156,7 +155,7 @@ class ReviewControllerTest {
         when(userRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(testUser));
         when(reviewService.createReview(anyLong(), anyLong(), any()))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ResourceNotFoundException("Product not found"));
 
         mockMvc.perform(post("/api/products/999/reviews")
                         .with(csrf())

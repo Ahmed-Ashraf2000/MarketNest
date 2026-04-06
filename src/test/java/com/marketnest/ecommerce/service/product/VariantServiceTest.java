@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.service.product;
 
 import com.marketnest.ecommerce.dto.variant.VariantRequestDto;
 import com.marketnest.ecommerce.dto.variant.VariantResponseDto;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.VariantNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.Variant.VariantMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.model.ProductVariant;
@@ -101,7 +100,7 @@ class VariantServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> variantService.getVariantsByProductId(999L))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 999");
     }
 
@@ -122,7 +121,7 @@ class VariantServiceTest {
         when(variantRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> variantService.getVariantById(999L))
-                .isInstanceOf(VariantNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Variant not found with ID: 999");
     }
 
@@ -146,7 +145,7 @@ class VariantServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> variantService.createVariant(999L, requestDto))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 999");
     }
 
@@ -169,7 +168,7 @@ class VariantServiceTest {
         when(variantRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> variantService.updateVariant(999L, requestDto))
-                .isInstanceOf(VariantNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Variant not found with ID: 999");
     }
 
@@ -188,7 +187,7 @@ class VariantServiceTest {
         when(variantRepository.existsById(anyLong())).thenReturn(false);
 
         assertThatThrownBy(() -> variantService.deleteVariant(999L))
-                .isInstanceOf(VariantNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Variant not found with ID: 999");
     }
 }

@@ -1,8 +1,7 @@
 package com.marketnest.ecommerce.service.user;
 
 import com.marketnest.ecommerce.dto.user.address.AddressRequestDto;
-import com.marketnest.ecommerce.exception.AddressNotFound;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.user.UserAddressMapper;
 import com.marketnest.ecommerce.model.Address;
 import com.marketnest.ecommerce.model.User;
@@ -27,7 +26,7 @@ public class AddressService {
     @Transactional
     public Address createAddress(String email, AddressRequestDto requestDTO) {
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException("User not found with email: " + email));
+                () -> new ResourceNotFoundException("User", "email", email));
 
         Address address = addressMapper.toEntity(requestDTO);
         address.setUser(user);
@@ -37,7 +36,7 @@ public class AddressService {
     @Transactional(readOnly = true)
     public List<Address> getUserAddresses(String email) {
         if (userRepository.findByEmail(email).isEmpty()) {
-            throw new UserNotFoundException("User not found with email: " + email);
+            throw new ResourceNotFoundException("User", "email", email);
         }
         return addressRepository.findAddressByUser_Email(email);
     }
@@ -45,8 +44,7 @@ public class AddressService {
     @Transactional(readOnly = true)
     public Address getAddress(String email, Long addressId) {
         return addressRepository.findAddressByUser_EmailAndId(email, addressId)
-                .orElseThrow(() -> new AddressNotFound(
-                        "Address not found with id: " + addressId));
+                .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
     }
 
     public Address updateAddress(String email, Long addressId, AddressRequestDto requestDTO) {

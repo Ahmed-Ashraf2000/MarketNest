@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.cart.UpdateCartItemRequest;
-import com.marketnest.ecommerce.exception.CartNotFoundException;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.cart.CartService;
@@ -119,7 +117,7 @@ class CartControllerTest {
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartService.addToCart(anyLong(), any(CartItemRequest.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ResourceNotFoundException("Product not found"));
 
         mockMvc.perform(post("/api/cart/items")
                         .with(csrf())
@@ -170,7 +168,7 @@ class CartControllerTest {
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartService.updateCartItemQuantity(anyLong(), anyLong(), anyInt()))
-                .thenThrow(new CartNotFoundException("Cart item not found"));
+                .thenThrow(new ResourceNotFoundException("Cart item not found"));
 
         mockMvc.perform(patch("/api/cart/items/999")
                         .with(csrf())
@@ -198,7 +196,7 @@ class CartControllerTest {
     void removeCartItem_shouldReturn404_whenItemNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartService.removeCartItem(anyLong(), anyLong()))
-                .thenThrow(new CartNotFoundException("Cart item not found"));
+                .thenThrow(new ResourceNotFoundException("Cart item not found"));
 
         mockMvc.perform(delete("/api/cart/items/999")
                         .with(csrf()))
@@ -226,7 +224,7 @@ class CartControllerTest {
     void clearCart_shouldReturn404_whenCartNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(cartService.clearCart(anyLong()))
-                .thenThrow(new CategoryNotFoundException("Active cart not found"));
+                .thenThrow(new ResourceNotFoundException("Active cart not found"));
 
         mockMvc.perform(delete("/api/cart")
                         .with(csrf()))

@@ -4,8 +4,7 @@ import com.marketnest.ecommerce.dto.payment.PaymentMethodDto;
 import com.marketnest.ecommerce.dto.payment.PaymentProcessRequestDto;
 import com.marketnest.ecommerce.dto.payment.PaymentResponseDto;
 import com.marketnest.ecommerce.dto.payment.RefundRequestDto;
-import com.marketnest.ecommerce.exception.OrderNotFoundException;
-import com.marketnest.ecommerce.exception.PaymentNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.payment.PaymentMapper;
 import com.marketnest.ecommerce.model.Order;
 import com.marketnest.ecommerce.model.Payment;
@@ -43,8 +42,8 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Processing payment for order ID: {}", requestDto.getOrderId());
 
         Order order = orderRepository.findById(requestDto.getOrderId())
-                .orElseThrow(() -> new OrderNotFoundException(
-                        "Order not found with ID: " + requestDto.getOrderId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Order", "ID", requestDto.getOrderId()));
 
         Payment payment = new Payment();
         payment.setOrder(order);
@@ -130,8 +129,8 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Fetching payment with ID: {}", paymentId);
 
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(
-                        "Payment not found with ID: " + paymentId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Payment", "ID", paymentId));
 
         return paymentMapper.toResponse(payment, htmlEscapeUtil);
     }
@@ -142,8 +141,8 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Processing refund for payment ID: {}", paymentId);
 
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(
-                        "Payment not found with ID: " + paymentId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Payment", "ID", paymentId));
 
         if (payment.getStatus() != Payment.PaymentStatus.COMPLETED) {
             throw new IllegalStateException("Only completed payments can be refunded");

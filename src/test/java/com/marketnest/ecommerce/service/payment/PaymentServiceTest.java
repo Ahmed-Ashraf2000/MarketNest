@@ -4,8 +4,7 @@ import com.marketnest.ecommerce.dto.payment.PaymentMethodDto;
 import com.marketnest.ecommerce.dto.payment.PaymentProcessRequestDto;
 import com.marketnest.ecommerce.dto.payment.PaymentResponseDto;
 import com.marketnest.ecommerce.dto.payment.RefundRequestDto;
-import com.marketnest.ecommerce.exception.OrderNotFoundException;
-import com.marketnest.ecommerce.exception.PaymentNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.payment.PaymentMapper;
 import com.marketnest.ecommerce.model.Order;
 import com.marketnest.ecommerce.model.Payment;
@@ -103,7 +102,7 @@ class PaymentServiceTest {
         when(orderRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.processPayment(paymentProcessRequestDto))
-                .isInstanceOf(OrderNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Order not found");
 
         verify(paymentRepository, never()).save(any());
@@ -144,7 +143,7 @@ class PaymentServiceTest {
         when(paymentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.getPaymentById(999L))
-                .isInstanceOf(PaymentNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Payment not found");
     }
 
@@ -174,7 +173,7 @@ class PaymentServiceTest {
         when(paymentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.refundPayment(999L, refundRequestDto))
-                .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(paymentRepository, never()).save(any());
     }

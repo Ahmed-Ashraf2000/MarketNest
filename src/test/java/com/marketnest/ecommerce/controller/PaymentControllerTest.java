@@ -5,8 +5,7 @@ import com.marketnest.ecommerce.dto.payment.PaymentMethodDto;
 import com.marketnest.ecommerce.dto.payment.PaymentProcessRequestDto;
 import com.marketnest.ecommerce.dto.payment.PaymentResponseDto;
 import com.marketnest.ecommerce.dto.payment.RefundRequestDto;
-import com.marketnest.ecommerce.exception.OrderNotFoundException;
-import com.marketnest.ecommerce.exception.PaymentNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.Payment;
 import com.marketnest.ecommerce.service.payment.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +108,7 @@ class PaymentControllerTest {
     @WithMockUser
     void processPayment_shouldReturn404_whenOrderNotFound() throws Exception {
         when(paymentService.processPayment(any(PaymentProcessRequestDto.class)))
-                .thenThrow(new OrderNotFoundException("Order not found with id: 999"));
+                .thenThrow(new ResourceNotFoundException("Order", "id", 999L));
 
         mockMvc.perform(post("/api/payments/process")
                         .with(csrf())
@@ -137,7 +136,7 @@ class PaymentControllerTest {
     @WithMockUser
     void getPaymentById_shouldReturn404_whenPaymentNotFound() throws Exception {
         when(paymentService.getPaymentById(anyLong()))
-                .thenThrow(new PaymentNotFoundException("Payment not found with id: 999"));
+                .thenThrow(new ResourceNotFoundException("Payment", "id", 999L));
 
         mockMvc.perform(get("/api/payments/999"))
                 .andExpect(status().isNotFound());
@@ -180,7 +179,7 @@ class PaymentControllerTest {
     @WithMockUser
     void refundPayment_shouldReturn404_whenPaymentNotFound() throws Exception {
         when(paymentService.refundPayment(anyLong(), any(RefundRequestDto.class)))
-                .thenThrow(new PaymentNotFoundException("Payment not found"));
+                .thenThrow(new ResourceNotFoundException("Payment", "id", 999L));
 
         mockMvc.perform(post("/api/payments/999/refund")
                         .with(csrf())

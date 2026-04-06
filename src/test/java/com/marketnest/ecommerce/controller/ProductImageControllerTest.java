@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.controller;
 
 import com.marketnest.ecommerce.dto.image.ImageRequestDto;
 import com.marketnest.ecommerce.dto.image.ImageResponseDto;
-import com.marketnest.ecommerce.exception.ProductImageNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.ProductImage;
 import com.marketnest.ecommerce.service.product.ProductImageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +72,7 @@ class ProductImageControllerTest {
     @Test
     void uploadProductImage_shouldReturn404_whenProductNotFound() throws Exception {
         when(productImageService.uploadProductImage(anyLong(), any(ImageRequestDto.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ResourceNotFoundException("Product not found"));
 
         mockMvc.perform(multipart("/api/products/999/images")
                         .file(mockFile)
@@ -137,7 +136,7 @@ class ProductImageControllerTest {
 
     @Test
     void deleteProductImage_shouldReturn404_whenImageNotFound() throws Exception {
-        doThrow(new ProductImageNotFoundException("Image not found"))
+        doThrow(new ResourceNotFoundException("Image not found"))
                 .when(productImageService).deleteProductImage(anyLong(), anyLong());
 
         mockMvc.perform(delete("/api/products/1/images/999"))
@@ -146,7 +145,7 @@ class ProductImageControllerTest {
 
     @Test
     void deleteProductImage_shouldReturn404_whenProductNotFound() throws Exception {
-        doThrow(new ProductNotFoundException("Product not found"))
+        doThrow(new ResourceNotFoundException("Product not found"))
                 .when(productImageService).deleteProductImage(anyLong(), anyLong());
 
         mockMvc.perform(delete("/api/products/999/images/1"))
@@ -195,7 +194,7 @@ class ProductImageControllerTest {
     @Test
     void getProductImages_shouldReturn404_whenProductNotFound() throws Exception {
         when(productImageService.getProductImages(anyLong(), anyBoolean()))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ResourceNotFoundException("Product not found"));
 
         mockMvc.perform(get("/api/products/999/images"))
                 .andExpect(status().isNotFound());

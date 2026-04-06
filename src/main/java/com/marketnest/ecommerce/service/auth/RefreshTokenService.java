@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.service.auth;
 
 
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.RefreshToken;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.RefreshTokenRepository;
@@ -29,7 +29,7 @@ public class RefreshTokenService {
     public RefreshToken createRefreshToken(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found with email: " + email));
+                        () -> new ResourceNotFoundException("User not found with email: " + email));
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);

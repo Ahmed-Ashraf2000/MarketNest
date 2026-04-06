@@ -4,7 +4,7 @@ import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
 import com.marketnest.ecommerce.dto.review.CreateReviewRequest;
 import com.marketnest.ecommerce.dto.review.ReviewResponse;
 import com.marketnest.ecommerce.dto.review.UpdateReviewRequest;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.review.ReviewService;
@@ -179,7 +179,7 @@ public class ReviewController {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("The user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("The user not found"));
 
         return user.getUserId();
     }

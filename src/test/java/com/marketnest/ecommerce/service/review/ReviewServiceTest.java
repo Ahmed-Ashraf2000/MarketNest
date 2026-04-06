@@ -3,8 +3,7 @@ package com.marketnest.ecommerce.service.review;
 import com.marketnest.ecommerce.dto.review.CreateReviewRequest;
 import com.marketnest.ecommerce.dto.review.ReviewResponse;
 import com.marketnest.ecommerce.dto.review.UpdateReviewRequest;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.ReviewNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.exception.UserNotFoundException;
 import com.marketnest.ecommerce.mapper.review.ReviewMapper;
 import com.marketnest.ecommerce.model.Product;
@@ -133,7 +132,7 @@ class ReviewServiceTest {
         when(reviewRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reviewService.getReviewById(999L))
-                .isInstanceOf(ReviewNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -157,7 +156,7 @@ class ReviewServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reviewService.createReview(999L, 1L, createRequest))
-                .isInstanceOf(ProductNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(reviewRepository, never()).save(any());
     }
@@ -219,7 +218,7 @@ class ReviewServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reviewService.updateReview(1L, 999L, updateRequest))
-                .isInstanceOf(ReviewNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(reviewRepository, never()).save(any());
     }
@@ -240,7 +239,7 @@ class ReviewServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reviewService.deleteReview(1L, 999L))
-                .isInstanceOf(ReviewNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(reviewRepository, never()).delete(any());
     }

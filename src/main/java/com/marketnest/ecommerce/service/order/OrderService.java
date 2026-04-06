@@ -9,7 +9,7 @@ import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.marketnest.ecommerce.dto.order.OrderRequestDto;
 import com.marketnest.ecommerce.dto.order.OrderResponseDto;
 import com.marketnest.ecommerce.dto.order.OrderSummaryDto;
-import com.marketnest.ecommerce.exception.OrderNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.order.OrderMapper;
 import com.marketnest.ecommerce.model.*;
 import com.marketnest.ecommerce.repository.*;
@@ -48,7 +48,7 @@ public class OrderService {
     public OrderResponseDto getOrderDetails(Long orderId, Long userId) {
         Order order = orderRepository.findByUser_UserIdAndId(userId, orderId)
                 .orElseThrow(
-                        () -> new OrderNotFoundException("Order not found with id: " + orderId));
+                        () -> new ResourceNotFoundException("Order", "id", orderId));
 
         return orderMapper.toResponse(order, htmlEscapeUtil);
     }
@@ -144,7 +144,7 @@ public class OrderService {
     public OrderResponseDto cancelOrder(Long orderId, Long userId) {
         Order order = orderRepository.findByUser_UserIdAndId(userId, orderId)
                 .orElseThrow(
-                        () -> new OrderNotFoundException("Order not found with id: " + orderId));
+                        () -> new ResourceNotFoundException("Order", "id", orderId));
 
         if (order.getStatus() != Order.OrderStatus.PENDING &&
             order.getStatus() != Order.OrderStatus.PROCESSING) {
@@ -169,7 +169,7 @@ public class OrderService {
     public byte[] generateInvoicePdf(Long orderId, Long userId) {
         Order order = orderRepository.findByUser_UserIdAndId(userId, orderId)
                 .orElseThrow(
-                        () -> new OrderNotFoundException("Order not found with id: " + orderId));
+                        () -> new ResourceNotFoundException("Order", "id", orderId));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
@@ -372,3 +372,4 @@ public class OrderService {
         return getOrderDetails(orderId, userId);
     }
 }
+

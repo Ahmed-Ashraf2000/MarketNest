@@ -4,7 +4,7 @@ import com.marketnest.ecommerce.dto.coupon.CouponResponse;
 import com.marketnest.ecommerce.dto.coupon.CouponValidationResponse;
 import com.marketnest.ecommerce.dto.coupon.CreateCouponRequest;
 import com.marketnest.ecommerce.dto.coupon.UpdateCouponRequest;
-import com.marketnest.ecommerce.exception.CouponNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.coupon.CouponMapper;
 import com.marketnest.ecommerce.model.Coupon;
 import com.marketnest.ecommerce.model.User;
@@ -126,7 +126,7 @@ class CouponServiceTest {
         when(couponRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> couponService.getCouponById(999L))
-                .isInstanceOf(CouponNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

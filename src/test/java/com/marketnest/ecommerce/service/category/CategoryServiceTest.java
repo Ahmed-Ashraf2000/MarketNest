@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.service.category;
 
 import com.marketnest.ecommerce.dto.category.CategoryRequestDto;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.Category;
 import com.marketnest.ecommerce.repository.CategoryRepository;
 import com.marketnest.ecommerce.service.cloudinary.CloudinaryService;
@@ -99,8 +99,8 @@ class CategoryServiceTest {
         when(categoryRepository.findByIdWithChildren(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.getCategoryById(999L))
-                .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Category not found with id: 999");
         verify(categoryRepository).findByIdWithChildren(999L);
     }
 
@@ -154,8 +154,8 @@ class CategoryServiceTest {
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.createCategory(categoryRequestDto))
-                .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Category not found with id: 999");
         verify(categoryRepository, never()).save(any());
     }
 
@@ -192,7 +192,7 @@ class CategoryServiceTest {
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.updateCategory(999L, categoryRequestDto))
-                .isInstanceOf(CategoryNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
         verify(categoryRepository, never()).save(any());
     }
 
@@ -266,7 +266,7 @@ class CategoryServiceTest {
         when(categoryRepository.findByIdWithChildren(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.deleteCategory(999L))
-                .isInstanceOf(CategoryNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
         verify(categoryRepository, never()).delete(any());
     }
 
@@ -299,7 +299,7 @@ class CategoryServiceTest {
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.updateCategoryStatus(999L, true))
-                .isInstanceOf(CategoryNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
         verify(categoryRepository, never()).save(any());
     }
 

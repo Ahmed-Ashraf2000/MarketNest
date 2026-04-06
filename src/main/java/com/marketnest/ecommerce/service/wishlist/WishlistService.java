@@ -4,8 +4,7 @@ import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.wishlist.AddWishlistItemRequest;
 import com.marketnest.ecommerce.dto.wishlist.WishlistResponse;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.WishlistNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.wishlist.WishlistMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.model.Wishlist;
@@ -42,7 +41,7 @@ public class WishlistService {
         Wishlist wishlist = getOrCreateWishlist(userId);
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (wishlist.containsProduct(product.getId())) {
             throw new IllegalArgumentException("Product already in wishlist");
@@ -61,7 +60,7 @@ public class WishlistService {
         Wishlist wishlist = getUserWishlistOrThrow(userId);
 
         WishlistItem itemToRemove = wishlistItemRepository.findById(itemId)
-                .orElseThrow(() -> new WishlistNotFoundException("Wishlist item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Wishlist item not found"));
 
         if (!itemToRemove.getWishlist().getId().equals(wishlist.getId())) {
             throw new IllegalArgumentException("Item does not belong to user's wishlist");
@@ -88,7 +87,7 @@ public class WishlistService {
         Wishlist wishlist = getUserWishlistOrThrow(userId);
 
         WishlistItem itemToMove = wishlistItemRepository.findById(itemId)
-                .orElseThrow(() -> new WishlistNotFoundException("Wishlist item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Wishlist item not found"));
 
         if (!itemToMove.getWishlist().getId().equals(wishlist.getId())) {
             throw new IllegalArgumentException("Item does not belong to user's wishlist");
@@ -115,6 +114,6 @@ public class WishlistService {
 
     private Wishlist getUserWishlistOrThrow(Long userId) {
         return wishlistRepository.findByUserId(userId)
-                .orElseThrow(() -> new WishlistNotFoundException("Wishlist not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Wishlist not found"));
     }
 }

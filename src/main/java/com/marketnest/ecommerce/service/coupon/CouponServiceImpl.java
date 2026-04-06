@@ -4,7 +4,9 @@ import com.marketnest.ecommerce.dto.coupon.CouponResponse;
 import com.marketnest.ecommerce.dto.coupon.CouponValidationResponse;
 import com.marketnest.ecommerce.dto.coupon.CreateCouponRequest;
 import com.marketnest.ecommerce.dto.coupon.UpdateCouponRequest;
-import com.marketnest.ecommerce.exception.*;
+import com.marketnest.ecommerce.exception.DuplicateResourceException;
+import com.marketnest.ecommerce.exception.InvalidCouponException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.coupon.CouponMapper;
 import com.marketnest.ecommerce.model.Coupon;
 import com.marketnest.ecommerce.model.CouponUsage;
@@ -122,8 +124,8 @@ public class CouponServiceImpl implements CouponService {
     @Transactional(readOnly = true)
     public CouponResponse getCouponById(Long couponId) {
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new CouponNotFoundException(
-                        "Coupon not found with id: " + couponId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Coupon", "id", couponId));
         return couponMapper.toResponse(coupon);
     }
 
@@ -154,8 +156,8 @@ public class CouponServiceImpl implements CouponService {
     @Transactional
     public CouponResponse updateCoupon(Long couponId, UpdateCouponRequest request) {
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new CouponNotFoundException(
-                        "Coupon not found with id: " + couponId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Coupon", "id", couponId));
 
         if (request.getEndDate() != null && request.getEndDate().isBefore(coupon.getStartDate())) {
             throw new InvalidCouponException("End date must be after start date");
@@ -177,8 +179,8 @@ public class CouponServiceImpl implements CouponService {
     @Transactional
     public void deleteCoupon(Long couponId) {
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new CouponNotFoundException(
-                        "Coupon not found with id: " + couponId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Coupon", "id", couponId));
 
         couponRepository.delete(coupon);
     }
@@ -187,8 +189,8 @@ public class CouponServiceImpl implements CouponService {
     @Transactional
     public CouponResponse updateCouponStatus(Long couponId, boolean isActive) {
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new CouponNotFoundException(
-                        "Coupon not found with id: " + couponId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Coupon", "id", couponId));
 
         coupon.setIsActive(isActive);
         Coupon updatedCoupon = couponRepository.save(coupon);
@@ -199,16 +201,16 @@ public class CouponServiceImpl implements CouponService {
     @Transactional
     public void applyCoupon(Long couponId, Long userId, Long orderId, BigDecimal discountAmount) {
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new CouponNotFoundException(
-                        "Coupon not found with id: " + couponId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Coupon", "id", couponId));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(
-                        "User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User", "id", userId));
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(
-                        "Order not found with id: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Order", "id", orderId));
 
         if (couponUsageRepository.existsByCoupon_IdAndOrder_Id(couponId, orderId)) {
             throw new InvalidCouponException("Coupon already applied to this order");

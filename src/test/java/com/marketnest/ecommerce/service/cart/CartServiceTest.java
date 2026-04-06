@@ -2,9 +2,7 @@ package com.marketnest.ecommerce.service.cart;
 
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
-import com.marketnest.ecommerce.exception.CartNotFoundException;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.cart.CartMapper;
 import com.marketnest.ecommerce.model.Cart;
 import com.marketnest.ecommerce.model.CartItem;
@@ -155,7 +153,7 @@ class CartServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> cartService.addToCart(1L, cartItemRequest))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found");
     }
 
@@ -187,8 +185,8 @@ class CartServiceTest {
                 .thenReturn(Optional.of(testCart));
 
         assertThatThrownBy(() -> cartService.updateCartItemQuantity(1L, 999L, 5))
-                .isInstanceOf(CartNotFoundException.class)
-                .hasMessageContaining("Cart item not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("CartItem not found with id: 999");
     }
 
     @Test
@@ -197,8 +195,8 @@ class CartServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> cartService.updateCartItemQuantity(999L, 1L, 5))
-                .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessageContaining("Active cart not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Cart not found with userId: 999");
     }
 
     @Test
@@ -227,8 +225,8 @@ class CartServiceTest {
                 .thenReturn(Optional.of(testCart));
 
         assertThatThrownBy(() -> cartService.removeCartItem(1L, 999L))
-                .isInstanceOf(CartNotFoundException.class)
-                .hasMessageContaining("Cart item not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("CartItem not found with id: 999");
     }
 
     @Test

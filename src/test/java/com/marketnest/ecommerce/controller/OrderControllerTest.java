@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketnest.ecommerce.dto.order.OrderRequestDto;
 import com.marketnest.ecommerce.dto.order.OrderResponseDto;
 import com.marketnest.ecommerce.dto.order.OrderSummaryDto;
-import com.marketnest.ecommerce.exception.OrderNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.Order;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -109,7 +109,7 @@ class OrderControllerTest {
     void getOrderDetails_shouldReturn404_whenOrderNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(orderService.getOrderDetails(anyLong(), anyLong()))
-                .thenThrow(new OrderNotFoundException("Order not found"));
+                .thenThrow(new ResourceNotFoundException("Order", "id", 999L));
 
         mockMvc.perform(get("/api/orders/999"))
                 .andExpect(status().isNotFound());
@@ -171,7 +171,7 @@ class OrderControllerTest {
     void cancelOrder_shouldReturn404_whenOrderNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(orderService.cancelOrder(anyLong(), anyLong()))
-                .thenThrow(new OrderNotFoundException("Order not found"));
+                .thenThrow(new ResourceNotFoundException("Order", "id", 999L));
 
         mockMvc.perform(post("/api/orders/999/cancel")
                         .with(csrf()))

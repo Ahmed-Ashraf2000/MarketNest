@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.service.product;
 
 import com.marketnest.ecommerce.dto.product.ProductRequestDto;
 import com.marketnest.ecommerce.dto.product.ProductResponseDto;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.product.ProductMapper;
 import com.marketnest.ecommerce.model.Category;
 import com.marketnest.ecommerce.model.Product;
@@ -109,7 +108,7 @@ class ProductServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProductById(1L))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 1");
 
         verify(productRepository, times(1)).findById(1L);
@@ -138,7 +137,7 @@ class ProductServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.updateProduct(1L, productRequestDto))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 1");
 
         verify(productRepository, times(1)).findById(1L);
@@ -161,7 +160,7 @@ class ProductServiceTest {
         when(productRepository.existsById(anyLong())).thenReturn(false);
 
         assertThatThrownBy(() -> productService.deleteProduct(1L))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 1");
 
         verify(productRepository, times(1)).existsById(1L);
@@ -207,7 +206,7 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProductsByCategoryId(1L, true, pageable))
-                .isInstanceOf(CategoryNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Category not found with ID: 1");
 
         verify(categoryRepository, times(1)).findById(1L);
@@ -230,7 +229,7 @@ class ProductServiceTest {
         when(productRepository.findBySlug(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProductBySlug("nonexistent"))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with slug: nonexistent");
 
         verify(productRepository, times(1)).findBySlug("nonexistent");

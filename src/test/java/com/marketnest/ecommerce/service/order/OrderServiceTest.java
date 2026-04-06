@@ -3,8 +3,7 @@ package com.marketnest.ecommerce.service.order;
 import com.marketnest.ecommerce.dto.order.OrderRequestDto;
 import com.marketnest.ecommerce.dto.order.OrderResponseDto;
 import com.marketnest.ecommerce.dto.order.OrderSummaryDto;
-import com.marketnest.ecommerce.exception.OrderNotFoundException;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.order.OrderMapper;
 import com.marketnest.ecommerce.model.Order;
 import com.marketnest.ecommerce.model.User;
@@ -154,8 +153,8 @@ class OrderServiceTest {
                 Optional.empty());
 
         assertThatThrownBy(() -> orderService.getOrderDetails(999L, 1L))
-                .isInstanceOf(OrderNotFoundException.class)
-                .hasMessageContaining("Order not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Order not found with id: 999");
     }
 
     @Test
@@ -183,7 +182,7 @@ class OrderServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderService.createOrder(orderRequestDto))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(orderRepository, never()).save(any());
     }
@@ -207,7 +206,7 @@ class OrderServiceTest {
                 Optional.empty());
 
         assertThatThrownBy(() -> orderService.cancelOrder(999L, 1L))
-                .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(orderRepository, never()).save(any());
     }

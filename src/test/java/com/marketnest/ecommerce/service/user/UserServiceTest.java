@@ -2,7 +2,7 @@ package com.marketnest.ecommerce.service.user;
 
 import com.marketnest.ecommerce.dto.user.AccountActionDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfileRequestDto;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +75,7 @@ class UserServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updateProfile("unknown@example.com", requestDto))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -166,7 +166,7 @@ class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserById(999L))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

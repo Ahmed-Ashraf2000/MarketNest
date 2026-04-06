@@ -3,8 +3,7 @@ package com.marketnest.ecommerce.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketnest.ecommerce.dto.variant.VariantRequestDto;
 import com.marketnest.ecommerce.dto.variant.VariantResponseDto;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.VariantNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.service.product.VariantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,7 +92,7 @@ class VariantControllerTest {
     @Test
     void getVariantById_shouldReturn404_whenNotFound() throws Exception {
         when(variantService.getVariantById(anyLong()))
-                .thenThrow(new VariantNotFoundException("Variant not found"));
+                .thenThrow(new ResourceNotFoundException("Variant not found"));
 
         mockMvc.perform(get("/api/variants/999"))
                 .andExpect(status().isNotFound());
@@ -127,7 +126,7 @@ class VariantControllerTest {
     @Test
     void createVariant_shouldReturn404_whenProductNotFound() throws Exception {
         when(variantService.createVariant(anyLong(), any(VariantRequestDto.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ResourceNotFoundException("Product not found"));
 
         mockMvc.perform(post("/api/products/999/variants")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -153,7 +152,7 @@ class VariantControllerTest {
     @Test
     void updateVariant_shouldReturn404_whenNotFound() throws Exception {
         when(variantService.updateVariant(anyLong(), any(VariantRequestDto.class)))
-                .thenThrow(new VariantNotFoundException("Variant not found"));
+                .thenThrow(new ResourceNotFoundException("Variant not found"));
 
         mockMvc.perform(put("/api/variants/999")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -173,7 +172,7 @@ class VariantControllerTest {
 
     @Test
     void deleteVariant_shouldReturn404_whenNotFound() throws Exception {
-        doThrow(new VariantNotFoundException("Variant not found"))
+        doThrow(new ResourceNotFoundException("Variant not found"))
                 .when(variantService).deleteVariant(anyLong());
 
         mockMvc.perform(delete("/api/variants/999"))

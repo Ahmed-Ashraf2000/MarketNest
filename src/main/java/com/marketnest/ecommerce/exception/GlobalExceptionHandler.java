@@ -33,23 +33,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ValidationErrorResponse("Validation failed", errors));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleUserNotFoundException(
-            UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(VariantNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleVariantNotFoundException(
-            VariantNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(WishlistNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleWishlistNotFoundException(
-            WishlistNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<SimpleErrorResponse> handleResourceNotFoundException(
+            ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
@@ -68,21 +54,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(CouponNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleCouponNotFoundException(
-            CouponNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(ReviewNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleReviewNotFoundException(
-            ReviewNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<SimpleErrorResponse> handleDuplicateResourceException(
             DuplicateResourceException ex) {
@@ -93,55 +64,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<SimpleErrorResponse> handleUnauthorizedAccessException(
             UnauthorizedAccessException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleCategoryNotFoundException(
-            CategoryNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleOrderNotFoundException(
-            OrderNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(PaymentNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handlePaymentNotFoundException(
-            PaymentNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleCartNotFoundException(
-            CartNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleProductNotFoundException(
-            ProductNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(ProductImageNotFoundException.class)
-    public ResponseEntity<SimpleErrorResponse> handleProductImageNotFoundException(
-            ProductImageNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new SimpleErrorResponse(ex.getMessage()));
-    }
-
-    @ExceptionHandler(AddressNotFound.class)
-    public ResponseEntity<SimpleErrorResponse> handleAddressNotFoundException(
-            AddressNotFound ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new SimpleErrorResponse(ex.getMessage()));
     }

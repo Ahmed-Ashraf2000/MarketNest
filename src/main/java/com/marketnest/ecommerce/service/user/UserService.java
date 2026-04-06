@@ -2,7 +2,7 @@ package com.marketnest.ecommerce.service.user;
 
 import com.marketnest.ecommerce.dto.user.AccountActionDto;
 import com.marketnest.ecommerce.dto.user.profile.ProfileRequestDto;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class UserService {
     public User updateProfile(String email, ProfileRequestDto requestDto) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found with email: " + email));
+                        () -> new ResourceNotFoundException("User not found with email: " + email));
 
         if (requestDto.getFirstName() != null) {
             user.setFirstName(requestDto.getFirstName());
@@ -44,7 +44,7 @@ public class UserService {
     public User updateProfilePhoto(String email, String photoUrl) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found with email: " + email));
+                        () -> new ResourceNotFoundException("User not found with email: " + email));
 
         user.setPhotoUrl(photoUrl);
         return userRepository.save(user);
@@ -54,7 +54,7 @@ public class UserService {
     public void processAccountAction(String email, AccountActionDto accountActionDto) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(
-                        () -> new UserNotFoundException(
+                        () -> new ResourceNotFoundException(
                                 "User not found with this email: " + email));
 
         if (!passwordEncoder.matches(accountActionDto.getPasswordConfirmation(),
@@ -91,7 +91,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
 
     @Transactional

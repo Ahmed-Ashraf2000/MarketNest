@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.service.product;
 
 import com.marketnest.ecommerce.dto.image.ImageRequestDto;
 import com.marketnest.ecommerce.dto.image.ImageResponseDto;
-import com.marketnest.ecommerce.exception.ProductImageNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.image.ImageMapper;
 import com.marketnest.ecommerce.model.ProductImage;
 import com.marketnest.ecommerce.repository.ProductImageRepository;
@@ -28,8 +27,8 @@ public class ProductImageService {
     @Transactional
     public ImageResponseDto uploadProductImage(Long productId, ImageRequestDto request) {
         productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product", "ID", productId));
 
         MultipartFile file = request.getFile();
         String imageUrl = cloudinaryService.uploadProductImage(file);
@@ -56,16 +55,16 @@ public class ProductImageService {
     @Transactional
     public void deleteProductImage(Long productId, Long imageId) {
         productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product", "ID", productId));
 
         ProductImage image = productImageRepository.findById(imageId)
-                .orElseThrow(() -> new ProductImageNotFoundException(
-                        "Product image not found with ID: " + imageId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product image", "ID", imageId));
 
         if (!image.getProductId().equals(productId)) {
-            throw new ProductImageNotFoundException(
-                    "Image does not belong to product with ID: " + productId);
+            throw new ResourceNotFoundException(
+                    "Image", "ID", imageId + " and Product ID " + productId);
         }
 
         productImageRepository.delete(image);
@@ -74,8 +73,8 @@ public class ProductImageService {
     @Transactional(readOnly = true)
     public List<ImageResponseDto> getProductImages(Long productId, boolean activeOnly) {
         productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product", "ID", productId));
 
         List<ProductImage> images;
         if (activeOnly) {

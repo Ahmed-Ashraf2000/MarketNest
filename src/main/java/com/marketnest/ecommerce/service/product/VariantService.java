@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.service.product;
 
 import com.marketnest.ecommerce.dto.variant.VariantRequestDto;
 import com.marketnest.ecommerce.dto.variant.VariantResponseDto;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.VariantNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.Variant.VariantMapper;
 import com.marketnest.ecommerce.model.ProductVariant;
 import com.marketnest.ecommerce.repository.ProductRepository;
@@ -25,8 +24,7 @@ public class VariantService {
     @Transactional(readOnly = true)
     public List<VariantResponseDto> getVariantsByProductId(Long productId) {
         productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ID", productId));
 
         List<ProductVariant> variants = variantRepository.findByProductId(productId);
         return variantMapper.toResponseList(variants);
@@ -35,16 +33,14 @@ public class VariantService {
     @Transactional(readOnly = true)
     public VariantResponseDto getVariantById(Long variantId) {
         ProductVariant variant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new VariantNotFoundException(
-                        "Variant not found with ID: " + variantId));
+                .orElseThrow(() -> new ResourceNotFoundException("Variant", "ID", variantId));
         return variantMapper.toResponse(variant);
     }
 
     @Transactional
     public VariantResponseDto createVariant(Long productId, VariantRequestDto request) {
         productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ID", productId));
 
         ProductVariant variant = variantMapper.toEntity(request);
         variant.setProductId(productId);
@@ -56,8 +52,7 @@ public class VariantService {
     @Transactional
     public VariantResponseDto updateVariant(Long variantId, VariantRequestDto request) {
         ProductVariant existingVariant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new VariantNotFoundException(
-                        "Variant not found with ID: " + variantId));
+                .orElseThrow(() -> new ResourceNotFoundException("Variant", "ID", variantId));
 
         ProductVariant updatedVariant = variantMapper.toEntity(request);
         updatedVariant.setId(existingVariant.getId());
@@ -71,7 +66,7 @@ public class VariantService {
     @Transactional
     public void deleteVariant(Long variantId) {
         if (!variantRepository.existsById(variantId)) {
-            throw new VariantNotFoundException("Variant not found with ID: " + variantId);
+            throw new ResourceNotFoundException("Variant", "ID", variantId);
         }
         variantRepository.deleteById(variantId);
     }

@@ -3,7 +3,7 @@ package com.marketnest.ecommerce.controller;
 import com.marketnest.ecommerce.dto.coupon.ApplyCouponRequest;
 import com.marketnest.ecommerce.dto.coupon.CouponResponse;
 import com.marketnest.ecommerce.dto.coupon.CouponValidationResponse;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.coupon.CouponService;
@@ -74,7 +74,7 @@ public class CouponController {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("The user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("The user not found"));
 
         return user.getUserId();
     }

@@ -4,7 +4,7 @@ import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.error.ValidationErrorResponse;
 import com.marketnest.ecommerce.dto.wishlist.AddWishlistItemRequest;
 import com.marketnest.ecommerce.dto.wishlist.WishlistResponse;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.repository.UserRepository;
 import com.marketnest.ecommerce.service.wishlist.WishlistService;
@@ -120,7 +120,7 @@ public class WishlistController {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("The user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("The user not found"));
 
         return user.getUserId();
     }

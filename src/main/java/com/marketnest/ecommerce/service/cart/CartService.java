@@ -2,9 +2,7 @@ package com.marketnest.ecommerce.service.cart;
 
 import com.marketnest.ecommerce.dto.cart.CartItemRequest;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
-import com.marketnest.ecommerce.exception.CartNotFoundException;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.cart.CartMapper;
 import com.marketnest.ecommerce.model.Cart;
 import com.marketnest.ecommerce.model.CartItem;
@@ -39,7 +37,7 @@ public class CartService {
         Cart cart = getOrCreateCart(userId);
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
 
         for (CartItem item : cart.getCartItems()) {
             if (item.getProduct().getId().equals(product.getId())) {
@@ -67,7 +65,7 @@ public class CartService {
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new CartNotFoundException("Cart item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", itemId));
 
         cartItem.setQuantity(quantity);
         cartItemRepository.save(cartItem);
@@ -84,7 +82,7 @@ public class CartService {
         CartItem itemToRemove = cart.getCartItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new CartNotFoundException("Cart item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", itemId));
 
         cart.removeCartItem(itemToRemove);
         cartItemRepository.delete(itemToRemove);
@@ -121,6 +119,6 @@ public class CartService {
 
     private Cart getUserCartOrThrow(Long userId) {
         return cartRepository.findByUserIdAndStatus(userId, Cart.CartStatus.ACTIVE)
-                .orElseThrow(() -> new CategoryNotFoundException("Active cart not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "userId", userId));
     }
 }

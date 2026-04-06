@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.service.auth;
 
 import com.marketnest.ecommerce.dto.auth.UserRegistrationDto;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.UserRegisterMapper;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.model.VerificationToken;
@@ -39,7 +39,7 @@ public class AuthService {
     @Transactional
     public void changePassword(String email, String currentPassword, String newPassword) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User belongs to this email " + email + " couldn't be found : "));
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
@@ -57,7 +57,8 @@ public class AuthService {
     @Transactional
     public void forgotPassword(String email, String baseUrl) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("No user found with email: " + email));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("No user found with email: " + email));
 
         tokenService.sendPasswordResetEmail(user, baseUrl);
     }

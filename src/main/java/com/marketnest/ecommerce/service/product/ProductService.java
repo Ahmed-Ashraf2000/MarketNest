@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.service.product;
 
 import com.marketnest.ecommerce.dto.product.ProductRequestDto;
 import com.marketnest.ecommerce.dto.product.ProductResponseDto;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.product.ProductMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.repository.CategoryRepository;
@@ -39,8 +38,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponseDto getProductById(Long productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ID", productId));
 
         return productMapper.toResponse(product);
     }
@@ -48,8 +46,7 @@ public class ProductService {
     @Transactional
     public ProductResponseDto updateProduct(Long productId, ProductRequestDto request) {
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ID", productId));
 
         Product updatedProduct = productMapper.toEntity(request);
         updatedProduct.setId(existingProduct.getId());
@@ -63,7 +60,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long productId) {
         if (!productRepository.existsById(productId)) {
-            throw new ProductNotFoundException("Product not found with ID: " + productId);
+            throw new ResourceNotFoundException("Product", "ID", productId);
         }
         productRepository.deleteById(productId);
     }
@@ -71,8 +68,7 @@ public class ProductService {
     @Transactional
     public ProductResponseDto updateProductStatus(Long productId, Boolean isActive) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ID", productId));
 
         product.setIsActive(isActive);
         Product savedProduct = productRepository.save(product);
@@ -84,8 +80,7 @@ public class ProductService {
     public Page<ProductResponseDto> getProductsByCategoryId(Long categoryId, boolean activeOnly,
                                                             Pageable pageable) {
         categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryNotFoundException(
-                        "Category not found with ID: " + categoryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "ID", categoryId));
 
         Page<Product> productPage;
         if (activeOnly) {
@@ -166,7 +161,7 @@ public class ProductService {
     public ProductResponseDto getProductBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(
-                        () -> new ProductNotFoundException("Product not found with slug: " + slug));
+                        () -> new ResourceNotFoundException("Product", "slug", slug));
 
         return productMapper.toResponse(product);
     }
@@ -175,8 +170,7 @@ public class ProductService {
     public Page<ProductResponseDto> getRelatedProducts(Long productId, boolean activeOnly,
                                                        int limit, Pageable pageable) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with ID: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ID", productId));
 
         if (product.getCategoryId() == null) {
             return Page.empty(pageable);

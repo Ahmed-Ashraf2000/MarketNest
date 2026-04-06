@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.wishlist.AddWishlistItemRequest;
 import com.marketnest.ecommerce.dto.wishlist.WishlistResponse;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.WishlistNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.User;
 import com.marketnest.ecommerce.model.WishlistItem;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -124,7 +123,7 @@ class WishlistControllerTest {
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(wishlistService.addToWishlist(anyLong(), any(AddWishlistItemRequest.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+                .thenThrow(new ResourceNotFoundException("Product not found"));
 
         mockMvc.perform(post("/api/wishlist/items")
                         .with(csrf())
@@ -152,7 +151,7 @@ class WishlistControllerTest {
     void removeFromWishlist_shouldReturn404_whenItemNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(wishlistService.removeFromWishlist(anyLong(), anyLong()))
-                .thenThrow(new WishlistNotFoundException("Item not found"));
+                .thenThrow(new ResourceNotFoundException("Item not found"));
 
         mockMvc.perform(delete("/api/wishlist/items/999")
                         .with(csrf()))
@@ -194,7 +193,7 @@ class WishlistControllerTest {
     void moveToCart_shouldReturn404_whenItemNotFound() throws Exception {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(wishlistService.moveToCart(anyLong(), anyLong()))
-                .thenThrow(new WishlistNotFoundException("Item not found"));
+                .thenThrow(new ResourceNotFoundException("Item not found"));
 
         mockMvc.perform(post("/api/wishlist/items/999/move-to-cart")
                         .with(csrf()))

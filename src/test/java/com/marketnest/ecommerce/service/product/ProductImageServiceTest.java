@@ -2,8 +2,7 @@ package com.marketnest.ecommerce.service.product;
 
 import com.marketnest.ecommerce.dto.image.ImageRequestDto;
 import com.marketnest.ecommerce.dto.image.ImageResponseDto;
-import com.marketnest.ecommerce.exception.ProductImageNotFoundException;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.image.ImageMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.model.ProductImage;
@@ -111,7 +110,7 @@ class ProductImageServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productImageService.uploadProductImage(999L, requestDto))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 999");
 
         verify(cloudinaryService, never()).uploadProductImage(any());
@@ -181,7 +180,7 @@ class ProductImageServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productImageService.deleteProductImage(999L, 1L))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 999");
 
         verify(productImageRepository, never()).delete(any());
@@ -193,7 +192,7 @@ class ProductImageServiceTest {
         when(productImageRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productImageService.deleteProductImage(1L, 999L))
-                .isInstanceOf(ProductImageNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product image not found with ID: 999");
 
         verify(productImageRepository, never()).delete(any());
@@ -206,7 +205,7 @@ class ProductImageServiceTest {
         when(productImageRepository.findById(1L)).thenReturn(Optional.of(testImage));
 
         assertThatThrownBy(() -> productImageService.deleteProductImage(1L, 1L))
-                .isInstanceOf(ProductImageNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Image does not belong to product with ID: 1");
 
         verify(productImageRepository, never()).delete(any());
@@ -245,7 +244,7 @@ class ProductImageServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productImageService.getProductImages(999L, true))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Product not found with ID: 999");
 
         verify(productImageRepository, never()).findByProductId(anyLong());

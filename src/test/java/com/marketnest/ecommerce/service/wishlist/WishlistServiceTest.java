@@ -3,8 +3,7 @@ package com.marketnest.ecommerce.service.wishlist;
 import com.marketnest.ecommerce.dto.cart.CartResponse;
 import com.marketnest.ecommerce.dto.wishlist.AddWishlistItemRequest;
 import com.marketnest.ecommerce.dto.wishlist.WishlistResponse;
-import com.marketnest.ecommerce.exception.ProductNotFoundException;
-import com.marketnest.ecommerce.exception.WishlistNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.wishlist.WishlistMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.model.Wishlist;
@@ -133,7 +132,7 @@ class WishlistServiceTest {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> wishlistService.addToWishlist(1L, addRequest))
-                .isInstanceOf(ProductNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(wishlistRepository, never()).save(any());
     }
@@ -171,7 +170,7 @@ class WishlistServiceTest {
         when(wishlistRepository.findByUserId(1L)).thenReturn(Optional.of(testWishlist));
 
         assertThatThrownBy(() -> wishlistService.removeFromWishlist(1L, 999L))
-                .isInstanceOf(WishlistNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(wishlistRepository, never()).save(any());
     }
@@ -211,7 +210,7 @@ class WishlistServiceTest {
         when(wishlistRepository.findByUserId(1L)).thenReturn(Optional.of(testWishlist));
 
         assertThatThrownBy(() -> wishlistService.moveToCart(1L, 999L))
-                .isInstanceOf(WishlistNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(cartService, never()).addToCart(anyLong(), any());
     }

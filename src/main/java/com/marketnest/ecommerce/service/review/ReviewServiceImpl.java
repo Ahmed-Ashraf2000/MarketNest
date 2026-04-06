@@ -3,7 +3,9 @@ package com.marketnest.ecommerce.service.review;
 import com.marketnest.ecommerce.dto.review.CreateReviewRequest;
 import com.marketnest.ecommerce.dto.review.ReviewResponse;
 import com.marketnest.ecommerce.dto.review.UpdateReviewRequest;
-import com.marketnest.ecommerce.exception.*;
+import com.marketnest.ecommerce.exception.DuplicateResourceException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
+import com.marketnest.ecommerce.exception.UnauthorizedAccessException;
 import com.marketnest.ecommerce.mapper.review.ReviewMapper;
 import com.marketnest.ecommerce.model.Order;
 import com.marketnest.ecommerce.model.Product;
@@ -36,7 +38,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getProductReviews(Long productId, Pageable pageable) {
         if (!productRepository.existsById(productId)) {
-            throw new ProductNotFoundException("Product not found with id: " + productId);
+            throw new ResourceNotFoundException("Product", "id", productId);
         }
 
         return reviewRepository.findByProductIdAndIsApprovedTrue(productId, pageable)
@@ -48,7 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse getReviewById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         return reviewMapper.toResponse(review);
     }
@@ -56,12 +58,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewResponse createReview(Long productId, Long userId, CreateReviewRequest request) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with id: " + productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found with id: " + userId));
+                        () -> new ResourceNotFoundException("User", "id", userId));
 
         if (reviewRepository.existsByProductIdAndUser_UserId(productId, userId)) {
             throw new DuplicateResourceException("You have already reviewed this product");
@@ -83,7 +84,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse updateReview(Long reviewId, Long userId, UpdateReviewRequest request) {
         Review review = reviewRepository.findByIdAndUser_UserId(reviewId, userId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         reviewMapper.updateEntityFromDto(request, review);
 
@@ -95,7 +96,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReview(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         if (!review.getUser().getUserId().equals(userId)) {
             throw new UnauthorizedAccessException("You are not authorized to delete this review");
@@ -108,7 +109,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void markReviewAsHelpful(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         review.setHelpfulCount(review.getHelpfulCount() + 1);
         reviewRepository.save(review);
@@ -118,7 +119,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReviewByAdmin(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         reviewRepository.delete(review);
     }
@@ -127,7 +128,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse approveReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         review.setIsApproved(true);
         Review updatedReview = reviewRepository.save(review);
@@ -138,13 +139,13 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse rejectReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(
-                        () -> new ReviewNotFoundException("Review not found with id: " + reviewId));
+                        () -> new ResourceNotFoundException("Review", "id", reviewId));
 
         review.setIsApproved(false);
         Review updatedReview = reviewRepository.save(review);
         return reviewMapper.toResponse(updatedReview);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getAllReviews(Pageable pageable) {

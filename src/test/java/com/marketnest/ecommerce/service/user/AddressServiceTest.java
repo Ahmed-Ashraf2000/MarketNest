@@ -1,8 +1,7 @@
 package com.marketnest.ecommerce.service.user;
 
 import com.marketnest.ecommerce.dto.user.address.AddressRequestDto;
-import com.marketnest.ecommerce.exception.AddressNotFound;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.user.UserAddressMapper;
 import com.marketnest.ecommerce.model.Address;
 import com.marketnest.ecommerce.model.User;
@@ -90,7 +89,7 @@ class AddressServiceTest {
 
         assertThatThrownBy(
                 () -> addressService.createAddress("unknown@example.com", addressRequestDto))
-                .isInstanceOf(UserNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found with email: unknown@example.com");
 
         verify(addressRepository, never()).save(any());
@@ -114,7 +113,7 @@ class AddressServiceTest {
         when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> addressService.getUserAddresses("unknown@example.com"))
-                .isInstanceOf(UserNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found with email: unknown@example.com");
 
         verify(addressRepository, never()).findAddressByUser_Email(anyString());
@@ -138,7 +137,7 @@ class AddressServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> addressService.getAddress("test@example.com", 999L))
-                .isInstanceOf(AddressNotFound.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Address not found with id: 999");
     }
 
@@ -171,7 +170,7 @@ class AddressServiceTest {
 
         assertThatThrownBy(
                 () -> addressService.updateAddress("test@example.com", 999L, addressRequestDto))
-                .isInstanceOf(AddressNotFound.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(addressRepository, never()).save(any());
     }
@@ -192,7 +191,7 @@ class AddressServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> addressService.deleteAddress("test@example.com", 999L))
-                .isInstanceOf(AddressNotFound.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(addressRepository, never()).delete(any());
     }
@@ -238,7 +237,7 @@ class AddressServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> addressService.setDefaultAddress("test@example.com", 999L))
-                .isInstanceOf(AddressNotFound.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(addressRepository, never()).save(any());
     }

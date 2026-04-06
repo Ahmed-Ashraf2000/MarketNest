@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.service.category;
 
 import com.marketnest.ecommerce.dto.category.CategoryRequestDto;
-import com.marketnest.ecommerce.exception.CategoryNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.model.Category;
 import com.marketnest.ecommerce.repository.CategoryRepository;
 import com.marketnest.ecommerce.service.cloudinary.CloudinaryService;
@@ -24,7 +24,7 @@ public class CategoryService {
     public Category getCategoryById(Long id) {
         return categoryRepository.findByIdWithChildren(id)
                 .orElseThrow(
-                        () -> new CategoryNotFoundException("Category not found with id: " + id));
+                        () -> new ResourceNotFoundException("Category", "id", id));
     }
 
     @Transactional
@@ -75,7 +75,7 @@ public class CategoryService {
 
         if (dto.getParentId() != null) {
             Category parent = categoryRepository.findById(dto.getParentId())
-                    .orElseThrow(() -> new CategoryNotFoundException("Parent category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", dto.getParentId()));
             category.setParent(parent);
         } else {
             category.setParent(null);
