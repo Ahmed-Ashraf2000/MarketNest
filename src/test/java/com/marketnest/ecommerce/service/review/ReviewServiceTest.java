@@ -4,7 +4,6 @@ import com.marketnest.ecommerce.dto.review.CreateReviewRequest;
 import com.marketnest.ecommerce.dto.review.ReviewResponse;
 import com.marketnest.ecommerce.dto.review.UpdateReviewRequest;
 import com.marketnest.ecommerce.exception.ResourceNotFoundException;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
 import com.marketnest.ecommerce.mapper.review.ReviewMapper;
 import com.marketnest.ecommerce.model.Product;
 import com.marketnest.ecommerce.model.Review;
@@ -167,7 +166,7 @@ class ReviewServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reviewService.createReview(1L, 999L, createRequest))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(reviewRepository, never()).save(any());
     }

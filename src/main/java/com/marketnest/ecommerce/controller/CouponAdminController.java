@@ -19,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -70,15 +69,7 @@ public class CouponAdminController {
     })
     @PostMapping
     public ResponseEntity<?> createCoupon(
-            @Valid @RequestBody CreateCouponRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody CreateCouponRequest request) {
 
         CouponResponse coupon = couponService.createCoupon(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(coupon);

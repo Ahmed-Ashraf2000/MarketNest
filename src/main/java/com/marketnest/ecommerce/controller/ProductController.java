@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -42,16 +41,7 @@ public class ProductController {
                             schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequestDto request,
-                                           BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequestDto request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.createProduct(request));
@@ -81,16 +71,7 @@ public class ProductController {
     })
     @PutMapping("/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable Long productId,
-                                           @Valid @RequestBody ProductRequestDto request,
-                                           BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+                                           @Valid @RequestBody ProductRequestDto request) {
 
         return ResponseEntity.ok(productService.updateProduct(productId, request));
     }

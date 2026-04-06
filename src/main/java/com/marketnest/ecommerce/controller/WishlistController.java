@@ -18,7 +18,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -58,15 +57,7 @@ public class WishlistController {
     @PostMapping("/items")
     public ResponseEntity<?> addToWishlist(
             Authentication authentication,
-            @Valid @RequestBody AddWishlistItemRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody AddWishlistItemRequest request) {
 
         Long userId = extractUserId(authentication);
         return ResponseEntity.ok(wishlistService.addToWishlist(userId, request));

@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -57,15 +56,7 @@ public class CartController {
     @PostMapping("/items")
     public ResponseEntity<?> addToCart(
             Authentication authentication,
-            @Valid @RequestBody CartItemRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody CartItemRequest request) {
 
         Long userId = extractUserId(authentication);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -85,15 +76,7 @@ public class CartController {
     public ResponseEntity<?> updateCartItemQuantity(
             Authentication authentication,
             @PathVariable Long itemId,
-            @Valid @RequestBody UpdateCartItemRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody UpdateCartItemRequest request) {
 
         Long userId = extractUserId(authentication);
         if (request.getQuantity() == null || request.getQuantity() < 1) {

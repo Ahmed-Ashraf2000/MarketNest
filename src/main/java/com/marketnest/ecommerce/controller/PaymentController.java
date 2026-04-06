@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -44,15 +43,7 @@ public class PaymentController {
     })
     @PostMapping("/process")
     public ResponseEntity<?> processPayment(
-            @Valid @RequestBody PaymentProcessRequestDto requestDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody PaymentProcessRequestDto requestDto) {
 
         log.info("Received payment processing request for order ID: {}", requestDto.getOrderId());
         PaymentResponseDto response = paymentService.processPayment(requestDto);

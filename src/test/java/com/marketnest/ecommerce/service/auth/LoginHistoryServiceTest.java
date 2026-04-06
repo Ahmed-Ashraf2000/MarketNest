@@ -1,7 +1,7 @@
 package com.marketnest.ecommerce.service.auth;
 
 import com.marketnest.ecommerce.dto.auth.LoginHistoryDto;
-import com.marketnest.ecommerce.exception.UserNotFoundException;
+import com.marketnest.ecommerce.exception.ResourceNotFoundException;
 import com.marketnest.ecommerce.mapper.auth.LoginHistoryMapper;
 import com.marketnest.ecommerce.model.LoginHistory;
 import com.marketnest.ecommerce.model.User;
@@ -266,7 +266,7 @@ class LoginHistoryServiceTest {
         when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> loginHistoryService.getUserLoginHistory("unknown@example.com"))
-                .isInstanceOf(UserNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
         verify(loginHistoryRepository, never()).findByUserOrderByLoginTimestampDesc(any());

@@ -26,7 +26,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -76,17 +75,7 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<?> updateUserProfile(
             @Valid @RequestBody ProfileRequestDto requestDto,
-            BindingResult bindingResult,
             Authentication authentication) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         String email = authentication.getName();
 
@@ -147,16 +136,7 @@ public class UserController {
     @PostMapping("/account-action")
     public ResponseEntity<?> processAccountAction(
             @Valid @RequestBody AccountActionDto accountActionDto,
-            Authentication authentication,
-            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            Authentication authentication) {
 
         String email = authentication.getName();
 

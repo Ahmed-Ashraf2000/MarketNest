@@ -24,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -81,15 +80,7 @@ public class CategoryController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createCategory(
-            @Valid @ModelAttribute CategoryRequestDto categoryDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @ModelAttribute CategoryRequestDto categoryDto) {
 
         Category newCategory = categoryService.createCategory(categoryDto);
         return ResponseEntity
@@ -110,15 +101,7 @@ public class CategoryController {
     @PutMapping("/{categoryId}")
     public ResponseEntity<?> updateCategory(
             @PathVariable Long categoryId,
-            @Valid @ModelAttribute CategoryRequestDto categoryDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @ModelAttribute CategoryRequestDto categoryDto) {
 
         Category updatedCategory = categoryService.updateCategory(categoryId, categoryDto);
         return ResponseEntity.ok(categoryMapper.toResponseDto(updatedCategory));

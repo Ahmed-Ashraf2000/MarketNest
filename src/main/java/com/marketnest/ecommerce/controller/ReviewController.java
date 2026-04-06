@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -74,15 +73,7 @@ public class ReviewController {
     public ResponseEntity<?> addReview(
             @PathVariable Long productId,
             @Valid @RequestBody CreateReviewRequest request,
-            Authentication authentication, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            Authentication authentication) {
 
         Long userId = extractUserId(authentication);
         return ResponseEntity.status(HttpStatus.CREATED)

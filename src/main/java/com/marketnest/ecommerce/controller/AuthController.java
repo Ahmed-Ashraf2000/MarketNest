@@ -37,7 +37,6 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -177,16 +176,7 @@ public class AuthController {
             )
     })
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto registrationDto,
-                                          BindingResult bindingResult,
                                           HttpServletRequest request) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
@@ -448,16 +438,7 @@ public class AuthController {
     })
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDto dto,
                                             Authentication authentication,
-                                            BindingResult bindingResult,
                                             HttpServletResponse response) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         String email = authentication.getName();
 
@@ -504,16 +485,7 @@ public class AuthController {
             )
     })
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDto dto,
-                                            BindingResult bindingResult,
                                             HttpServletRequest request) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         String baseUrl = buildBaseUrl(request);
 
@@ -554,17 +526,8 @@ public class AuthController {
             @Parameter(description = "Password reset token from email", required = true,
                     example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
             @RequestParam String token,
-            @Valid @RequestBody ResetPasswordDto dto,
-            BindingResult bindingResult
+            @Valid @RequestBody ResetPasswordDto dto
     ) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         authService.resetPassword(token, dto.getPassword());
 

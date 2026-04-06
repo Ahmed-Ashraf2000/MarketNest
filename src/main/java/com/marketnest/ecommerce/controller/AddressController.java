@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -45,16 +44,8 @@ public class AddressController {
     })
     @PostMapping
     public ResponseEntity<?> createAddress(
-            @Valid @RequestBody AddressRequestDto requestDTO, BindingResult bindingResult,
+            @Valid @RequestBody AddressRequestDto requestDTO,
             Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         String email = authentication.getName();
 
@@ -117,17 +108,8 @@ public class AddressController {
     public ResponseEntity<?> updateAddress(
             @PathVariable Long id,
             @Valid @RequestBody AddressRequestDto requestDTO,
-            BindingResult bindingResult,
             Authentication authentication) {
 
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
 
         String email = authentication.getName();
 

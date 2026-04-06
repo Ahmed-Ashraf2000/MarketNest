@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -69,15 +68,7 @@ public class VariantController {
     @PostMapping("/products/{productId}/variants")
     public ResponseEntity<?> createVariant(
             @PathVariable Long productId,
-            @Valid @RequestBody VariantRequestDto request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody VariantRequestDto request) {
 
         VariantResponseDto createdVariant = variantService.createVariant(productId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdVariant);
@@ -96,15 +87,7 @@ public class VariantController {
     @PutMapping("/variants/{variantId}")
     public ResponseEntity<?> updateVariant(
             @PathVariable Long variantId,
-            @Valid @RequestBody VariantRequestDto request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest()
-                    .body(new ValidationErrorResponse("Validation failed", errors));
-        }
+            @Valid @RequestBody VariantRequestDto request) {
 
         VariantResponseDto updatedVariant = variantService.updateVariant(variantId, request);
         return ResponseEntity.ok(updatedVariant);
