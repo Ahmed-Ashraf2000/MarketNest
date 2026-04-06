@@ -1,7 +1,6 @@
 package com.marketnest.ecommerce.config;
 
 import com.marketnest.ecommerce.exception.SecurityExceptionHandlers;
-import com.marketnest.ecommerce.filter.CsrfCookieFilter;
 import com.marketnest.ecommerce.filter.JwtTokenGeneratorFilter;
 import com.marketnest.ecommerce.filter.JwtTokenValidatorFilter;
 import com.marketnest.ecommerce.repository.UserRepository;
@@ -18,14 +17,13 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
@@ -41,101 +39,90 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler =
-                new CsrfTokenRequestAttributeHandler();
 
-        http.authorizeHttpRequests(authorize -> {
-            authorize
+        http.authorizeHttpRequests(authorize -> authorize
 
-                    // Public endpoints
-                    .requestMatchers(HttpMethod.POST,
-                            "/api/auth/register", "/api/auth/resend-token", "/api/auth/login",
-                            "/api/auth/refresh-token", "/api/auth/forgot-password",
-                            "/api/auth/reset-password", "/webhook").permitAll()
-                    .requestMatchers(HttpMethod.GET,
-                            "/api/auth/verify-email",
-                            "/api/categories/**",
-                            "/api/products/**",
-                            "/api/variants/{variantId}",
-                            "/api/payments/methods",
-                            "/api/reviews/{reviewId}",
-                            "/api/reviews/{reviewId}").permitAll()
-                    .requestMatchers(
-                            "/swagger-ui.html",
-                            "/swagger-ui/**",
-                            "/api-docs",
-                            "/api-docs/**",
-                            "/v3/api-docs",
-                            "/v3/api-docs/**"
-                    ).permitAll()
+                // Public endpoints
+                .requestMatchers(HttpMethod.POST,
+                        "/api/auth/register", "/api/auth/resend-token", "/api/auth/login",
+                        "/api/auth/refresh-token", "/api/auth/forgot-password",
+                        "/api/auth/reset-password", "/webhook").permitAll()
+                .requestMatchers(HttpMethod.GET,
+                        "/api/auth/verify-email",
+                        "/api/categories/**",
+                        "/api/products/**",
+                        "/api/variants/{variantId}",
+                        "/api/payments/methods",
+                        "/api/reviews/{reviewId}",
+                        "/api/reviews/{reviewId}").permitAll()
+                .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/api-docs",
+                        "/api-docs/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**"
+                ).permitAll()
 
-                    // Authenticated users only
-                    .requestMatchers(HttpMethod.POST, "/api/auth/logout", "/api/coupons/validate")
-                    .authenticated()
-                    .requestMatchers(HttpMethod.GET, "/api/coupons/available").authenticated()
+                // Authenticated users only
+                .requestMatchers(HttpMethod.POST, "/api/auth/logout", "/api/coupons/validate")
+                .authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/coupons/available").authenticated()
 
-                    // Customer & Admin shared access
-                    .requestMatchers("/api/cart/**", "/api/wishlist/**", "/api/orders/**",
-                            "/api/payments/process", "/api/payments/{paymentId}")
-                    .hasAnyRole("CUSTOMER", "ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/auth/login-history",
-                            "/api/users/profile").hasAnyRole("CUSTOMER", "ADMIN")
-                    .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
-                    .hasAnyRole("CUSTOMER", "ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/users/profile",
-                            "/api/reviews/{reviewId}", "/api/reviews/{reviewId}")
-                    .hasAnyRole("CUSTOMER", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/users/profile/photo",
-                            "/api/products/{productId}/reviews", "/api/reviews/{reviewId}/helpful")
-                    .hasAnyRole("CUSTOMER", "ADMIN")
+                // Customer & Admin shared access
+                .requestMatchers("/api/cart/**", "/api/wishlist/**", "/api/orders/**",
+                        "/api/payments/process", "/api/payments/{paymentId}")
+                .hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/auth/login-history",
+                        "/api/users/profile").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/auth/change-password")
+                .hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/users/profile",
+                        "/api/reviews/{reviewId}", "/api/reviews/{reviewId}")
+                .hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/users/profile/photo",
+                        "/api/products/{productId}/reviews", "/api/reviews/{reviewId}/helpful")
+                .hasAnyRole("CUSTOMER", "ADMIN")
 
-                    // Customer-only access
-                    .requestMatchers("/api/users/addresses/**").hasRole("CUSTOMER")
-                    .requestMatchers(HttpMethod.POST, "/api/users/account-action")
-                    .hasRole("CUSTOMER")
+                // Customer-only access
+                .requestMatchers("/api/users/addresses/**").hasRole("CUSTOMER")
+                .requestMatchers(HttpMethod.POST, "/api/users/account-action")
+                .hasRole("CUSTOMER")
 
-                    // Admin-only access
-                    .requestMatchers("/api/users/**", "/api/admin/reviews",
-                            "/api/admin/coupons/**", "/api/admin/analytics/**")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PATCH,
-                            "/api/users/{userId}/status",
-                            "/api/products/{productId}/status",
-                            "/api/categories/{categoryId}",
-                            "/api/categories/{categoryId}/status",
-                            "/api/admin/reviews/{reviewId}/approve",
-                            "/api/admin/reviews/{reviewId}/reject").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE,
-                            "/api/users/{userId}",
-                            "/api/categories/{categoryId}",
-                            "/api/products/**",
-                            "/api/variants/{variantId}",
-                            "/api/admin/reviews/{reviewId}").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST,
-                            "/api/categories",
-                            "/api/products",
-                            "/api/products/{productId}/images/**",
-                            "/api/products/{productId}/variants",
-                            "/api/payments/{paymentId}/refund").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT,
-                            "/api/products/{productId}",
-                            "/api/variants/{variantId}").hasRole("ADMIN");
-        });
+                // Admin-only access
+                .requestMatchers("/api/users/**", "/api/admin/reviews",
+                        "/api/admin/coupons/**", "/api/admin/analytics/**")
+                .hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH,
+                        "/api/users/{userId}/status",
+                        "/api/products/{productId}/status",
+                        "/api/categories/{categoryId}",
+                        "/api/categories/{categoryId}/status",
+                        "/api/admin/reviews/{reviewId}/approve",
+                        "/api/admin/reviews/{reviewId}/reject").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,
+                        "/api/users/{userId}",
+                        "/api/categories/{categoryId}",
+                        "/api/products/**",
+                        "/api/variants/{variantId}",
+                        "/api/admin/reviews/{reviewId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST,
+                        "/api/categories",
+                        "/api/products",
+                        "/api/products/{productId}/images/**",
+                        "/api/products/{productId}/variants",
+                        "/api/payments/{paymentId}/refund").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,
+                        "/api/products/{productId}",
+                        "/api/variants/{variantId}").hasRole("ADMIN"));
 
-        http.formLogin(Customizer.withDefaults());
+        http.formLogin(AbstractHttpConfigurer::disable);
 
-        http.httpBasic(basicConfigurer -> basicConfigurer.authenticationEntryPoint(
-                new SecurityExceptionHandlers.CustomAuthenticationEntryPoint()));
+        http.httpBasic(AbstractHttpConfigurer::disable);
 
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        http.csrf(csrfConfigurer -> csrfConfigurer.csrfTokenRequestHandler(
-                        csrfTokenRequestAttributeHandler)
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/**")
-        );
-
-        http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);
+        http.csrf(AbstractHttpConfigurer::disable);
 
         http.addFilterAfter(new JwtTokenGeneratorFilter(jwtService),
                 BasicAuthenticationFilter.class);
@@ -144,8 +131,10 @@ public class SecurityConfig {
                 BasicAuthenticationFilter.class);
 
         http.exceptionHandling(exceptionHandling ->
-                exceptionHandling.accessDeniedHandler(
-                        new SecurityExceptionHandlers.CustomAccessDeniedHandler())
+                exceptionHandling.authenticationEntryPoint(
+                                new SecurityExceptionHandlers.CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(
+                                new SecurityExceptionHandlers.CustomAccessDeniedHandler())
         );
 
         http.sessionManagement(sessionManagement ->

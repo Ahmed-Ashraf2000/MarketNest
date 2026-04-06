@@ -1,5 +1,6 @@
 package com.marketnest.ecommerce.util;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.security.MessageDigest;
@@ -21,7 +22,7 @@ public class AuthUtils {
     public static String extractRefreshTokenFromCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
 
-        for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+        for (Cookie cookie : request.getCookies()) {
             if ("refresh_token".equals(cookie.getName())) {
                 return cookie.getValue();
             }
