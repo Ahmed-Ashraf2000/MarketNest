@@ -14,6 +14,7 @@ import com.marketnest.ecommerce.util.HtmlEscapeUtil;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.ChargeCreateParams;
 import com.stripe.param.RefundCreateParams;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,11 +42,19 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentResponseDto processPayment(PaymentProcessRequestDto requestDto) {
-        log.info("Processing payment for order ID: {}", requestDto.getOrderId());
 
         Order order = orderRepository.findById(requestDto.getOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Order", "ID", requestDto.getOrderId()));
+
+        List<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
+        if (!existingPayment.isEmpty()) {
+            Payment existing = existingPayment.getFirst();
+            if (existing.getStatus() == Payment.PaymentStatus.COMPLETED ||
+                existing.getStatus() == Payment.PaymentStatus.PENDING) {
+                return paymentMapper.toResponse(existing, htmlEscapeUtil);
+            }
+        }
 
         Payment payment = new Payment();
         payment.setOrder(order);
@@ -55,31 +66,32 @@ public class PaymentServiceImpl implements PaymentService {
             if ("CREDIT_CARD".equals(requestDto.getPaymentMethod()) ||
                 "DEBIT_CARD".equals(requestDto.getPaymentMethod())) {
 
+                String idempotencyKey = generateIdempotencyKey(order.getId(),
+                        requestDto.getPaymentMethod());
+
                 Charge charge = processStripePayment(
                         order.getTotal(),
                         requestDto.getStripeToken(),
                         requestDto.getStripePaymentMethodId(),
                         requestDto.getEmail(),
-                        order.getId()
+                        order.getId(),
+                        idempotencyKey
                 );
 
                 payment.setTransactionId(charge.getId());
+                payment.setIdempotencyKey(idempotencyKey);
                 payment.setStatus(Payment.PaymentStatus.COMPLETED);
                 payment.setPaymentDate(LocalDateTime.now());
 
                 order.setStatus(Order.OrderStatus.PROCESSING);
                 orderRepository.save(order);
-
-                log.info("Payment processed successfully for order ID: {}", order.getId());
             } else if ("CASH_ON_DELIVERY".equals(requestDto.getPaymentMethod())) {
-                payment.setTransactionId("COD-" + order.getId() + "-" + System.currentTimeMillis());
+                payment.setTransactionId("COD-" + order.getId());
                 payment.setStatus(Payment.PaymentStatus.PENDING);
                 payment.setPaymentDate(LocalDateTime.now());
 
                 order.setStatus(Order.OrderStatus.PROCESSING);
                 orderRepository.save(order);
-
-                log.info("Cash on delivery payment registered for order ID: {}", order.getId());
             } else {
                 throw new IllegalArgumentException("Unsupported payment method: " +
                                                    requestDto.getPaymentMethod());
@@ -97,7 +109,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private Charge processStripePayment(BigDecimal amount, String token,
-                                        String paymentMethodId, String email, Long orderId)
+                                        String paymentMethodId, String email,
+                                        Long orderId, String idempotencyKey)
             throws StripeException {
 
         long amountInCents = amount.multiply(BigDecimal.valueOf(100)).longValue();
@@ -120,7 +133,16 @@ public class PaymentServiceImpl implements PaymentService {
             paramsBuilder.setReceiptEmail(email);
         }
 
-        return Charge.create(paramsBuilder.build());
+        RequestOptions requestOptions = RequestOptions.builder()
+                .setIdempotencyKey(idempotencyKey)
+                .build();
+
+        return Charge.create(paramsBuilder.build(), requestOptions);
+    }
+
+    private String generateIdempotencyKey(Long orderId, String paymentMethod) {
+        String raw = "order-" + orderId + "-" + paymentMethod;
+        return UUID.nameUUIDFromBytes(raw.getBytes(StandardCharsets.UTF_8)).toString();
     }
 
     @Override

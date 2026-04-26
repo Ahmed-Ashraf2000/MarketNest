@@ -38,6 +38,9 @@ public class Payment {
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;
 
+    @Column(name = "idempotency_key", unique = true)
+    private String idempotencyKey;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
