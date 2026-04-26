@@ -43,7 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponseDto processPayment(PaymentProcessRequestDto requestDto) {
 
-        Order order = orderRepository.findById(requestDto.getOrderId())
+        Order order = orderRepository.findByIdWithLock(requestDto.getOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Order", "ID", requestDto.getOrderId()));
 
@@ -85,6 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
 
                 order.setStatus(Order.OrderStatus.PROCESSING);
                 orderRepository.save(order);
+
             } else if ("CASH_ON_DELIVERY".equals(requestDto.getPaymentMethod())) {
                 payment.setTransactionId("COD-" + order.getId());
                 payment.setStatus(Payment.PaymentStatus.PENDING);
@@ -92,6 +93,7 @@ public class PaymentServiceImpl implements PaymentService {
 
                 order.setStatus(Order.OrderStatus.PROCESSING);
                 orderRepository.save(order);
+
             } else {
                 throw new IllegalArgumentException("Unsupported payment method: " +
                                                    requestDto.getPaymentMethod());
@@ -162,7 +164,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponseDto refundPayment(Long paymentId, RefundRequestDto requestDto) {
         log.info("Processing refund for payment ID: {}", paymentId);
 
-        Payment payment = paymentRepository.findById(paymentId)
+        Payment payment = paymentRepository.findByIdWithLock(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Payment", "ID", paymentId));
 
@@ -175,7 +177,8 @@ public class PaymentServiceImpl implements PaymentService {
                     requestDto.getAmount() : payment.getAmount();
 
             if (refundAmount.compareTo(payment.getAmount()) > 0) {
-                throw new IllegalArgumentException("Refund amount cannot exceed payment amount");
+                throw new IllegalArgumentException(
+                        "Refund amount cannot exceed payment amount");
             }
 
             if (payment.getTransactionId().startsWith("COD-")) {
